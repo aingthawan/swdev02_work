@@ -1,3 +1,4 @@
+package week_1;
 // Duplicated element check 
 // O(n) is not over O(n2)
 
