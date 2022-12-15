@@ -20,12 +20,12 @@ public class week1_duplicateElementsCheck {
   
       // Loop through the numbers array
       for (int num : numbers) {
-        // If we have seen the number before, print it
+        // Found repeat display and end program
         if (seenNumbers.contains(num)) {
           System.out.println("Theres a repeated element in the array!");
           System.exit(0);
         } else {
-          // Otherwise, add the number to the set
+          // add the number to the set
           seenNumbers.add(num);
         }
       }
