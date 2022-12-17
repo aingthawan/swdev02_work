@@ -5,7 +5,7 @@ import java.util.Scanner;
  * sum10
  */
 public class sum10 {
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
 
     // Open the txt input file    +   new scanner
     File file = new File("input_sum10test.txt");
