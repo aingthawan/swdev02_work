@@ -1,35 +1,40 @@
-package week_1;
+import java.io.File;
+import java.util.Scanner;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
+/**
+ * sum10
+ */
 public class sum10 {
-    public static void main(String[] args) {
-    // target file name
-    String fileName = "input_sum10.txt";
+  public static void main(String[] args) {
 
-    // This will reference one line at a time
-    String line = null;
+    // Open the txt input file    +   new scanner
+    File file = new File("input_sum10test.txt");
+    Scanner scanner = new Scanner(file);
 
-    try {
-      // FileReader reads text files in the default encoding
-      FileReader fileReader = new FileReader(fileName);
+    // Read the first libe of txt file for matrix size
+    int matrixSize = scanner.nextInt();
 
-      // Wrap FileReader in BufferedReader
-      BufferedReader bufferedReader = new BufferedReader(fileReader);
+    // Create new matrix variable
+    int[][] matrix = new int[matrixSize][matrixSize];
 
-      // Read and print the file line by line
-      while((line = bufferedReader.readLine()) != null) {
-        System.out.println(line);
+    // Loop read input matrix
+    for (int i = 0; i < matrixSize; i++){
+      for (int j = 0; j < matrixSize; j++){
+        matrix[i][j] = scanner.nextInt();          
       }
+    }
 
-      // Close the file and BufferedReader
-      bufferedReader.close();
+    // Close scanner
+    scanner.close();
+
+
+
+    for (int i = 0; i < matrixSize; i++){
+      for (int j = 0; j < matrixSize; j++){
+        System.out.print(matrix[i][j] + " ");
+      }
+      System.out.println();
     }
-    catch(IOException ex) {
-      System.out.println("Error reading file '" + fileName + "'");
-    }
+
   }
 }
-
