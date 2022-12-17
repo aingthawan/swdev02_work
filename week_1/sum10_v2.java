@@ -43,6 +43,8 @@ public class sum10_v2 {
             r_sum = r_sum + matrix[i][k];
             if (r_sum == 10){
               tenCount += 1;
+            }else if (r_sum > 10){
+              break;
             }
           }
 
@@ -51,12 +53,14 @@ public class sum10_v2 {
             d_sum = d_sum + matrix[l][i];
             if (d_sum == 10){
               tenCount += 1;
+            }else if (d_sum > 10){
+              break;
             }
           }
         }
       }
 
-      // Print the result for this matrix
+      // Print result
       System.out.println(tenCount);
     }
 
