@@ -8,7 +8,7 @@ public class sum10 {
   public static void main(String[] args) throws Exception {
 
     // Open the txt input file    +   new scanner
-    File file = new File("input_sum10test2.txt");
+    File file = new File("input_sum10test.txt");
     Scanner scanner = new Scanner(file);
 
     // Read the first libe of txt file for matrix size
@@ -33,40 +33,27 @@ public class sum10 {
 
     for (int i = 0; i < matrixSize; i++){
       for (int j = 0; j < matrixSize; j++){
-        System.out.print(matrix[i][j] + " ");
-      }
-      System.out.println();
-    }
-    System.out.println();
-    System.out.println("=======================================");
-    System.out.println();
-
-    for (int i = 0; i < matrixSize; i++){
-      for (int j = 0; j < matrixSize; j++){
-        System.out.print(matrix[i][j] + " ");
-        
+       
+        //reset count
         r_sum = 0;
         d_sum = 0;
 
-        System.out.print(" Go R : ");
-        for (int k = j+1; k < matrixSize; k++){
-          //System.out.print(matrix[i][k]);
+        for (int k = j; k < matrixSize; k++){
           r_sum = r_sum + matrix[i][k];
+          if (r_sum == 10){
+            tenCount += 1;
+          }
         }
-        System.out.print(r_sum);
 
-        System.out.print(" Go D : ");
-        for (int l = i+1; l < matrixSize; l++){
-          //System.out.print(matrix[l][i]);
+        for (int l = i; l < matrixSize; l++){
           d_sum = d_sum + matrix[l][i];
+          if (d_sum == 10){
+            tenCount += 1;
+          }
         }
-        System.out.print(d_sum);
-
-
-        System.out.println();
       }
     }
-
+    System.out.println(tenCount);
 
   }
 }
