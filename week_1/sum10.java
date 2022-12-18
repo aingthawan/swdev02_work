@@ -11,7 +11,7 @@ public class sum10 {
     File file = new File("input_sum10test.txt");
     Scanner scanner = new Scanner(file);
 
-    // Read the first libe of txt file for matrix size
+    // Read matrix size
     int matrixSize = scanner.nextInt();
 
     // Create new matrix variable

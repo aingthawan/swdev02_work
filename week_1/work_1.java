@@ -1,4 +1,3 @@
-package week_1;
 /*
 My first java line
 Aingthawan K.
