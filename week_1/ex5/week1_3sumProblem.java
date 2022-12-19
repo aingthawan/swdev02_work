@@ -1,12 +1,7 @@
 package ex5;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-
-import org.junit.Test;
 
 public class week1_3sumProblem {
   public static int[][] sum(int[] arr){
