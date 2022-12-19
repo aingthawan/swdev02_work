@@ -1,3 +1,4 @@
+package ex6;
 // Aing K.
 // Sum10 Matrix
 

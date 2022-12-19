@@ -1,3 +1,4 @@
+package ex6;
 // Improved version on week1_sum10.java
 // By AI ChatGPT
 

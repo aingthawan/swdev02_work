@@ -1,3 +1,4 @@
+package ex5;
 import java.util.Arrays;
 
 public class week1_3sumProblem {

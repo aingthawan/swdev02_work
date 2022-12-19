@@ -1,3 +1,4 @@
+package ex6;
 import java.io.File;
 import java.util.Scanner;
 

@@ -1,3 +1,4 @@
+package ex4;
 // Duplicated element check 
 // O(n) is not over O(n2)
 
