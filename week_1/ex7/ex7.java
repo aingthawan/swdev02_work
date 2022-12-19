@@ -19,11 +19,11 @@ public class ex7 {
     public static void main(String[] args) throws FileNotFoundException {
 
         readFile("input_ex7.txt");
-        // System.out.println(n);
-        // System.out.println(c1);
-        // System.out.println(c2);
+        System.out.println(n);
+        System.out.println(c1);
+        System.out.println(c2);
 
-        
+
 
 
     }
