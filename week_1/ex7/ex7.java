@@ -3,25 +3,40 @@ package ex7;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.util.HashSet;
+import java.util.Arrays;   // to print array
+import java.util.Set;      // import for use Set<Integer>  
 
 /**
  * ex7
  */
 public class ex7 {
 
-    ///// Global Varable
+    ///// Global Variable
     static int n;
     static int c1;
     static int c2;
     static int[] A; // Array A
+    Set<Integer> seenNumbers = new HashSet<>();
 
     ///// Main Method
     public static void main(String[] args) throws FileNotFoundException {
 
         readFile("input_ex7.txt");
-        System.out.println(n);
-        System.out.println(c1);
-        System.out.println(c2);
+        System.out.println(Arrays.toString(A));
+
+        // if (seenNumbers.contains(num)) {
+        //     System.out.println("Theres a repeated element in the array!");
+        //     //exit program
+        //     System.exit(0);
+        //   } else {
+        //     // add the number to the set
+        //     seenNumbers.add(num); 
+        // }
+
+
+
+
 
 
 

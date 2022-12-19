@@ -13,9 +13,12 @@ public class week1_ex7 {
         outerloop:
         for (int i=0;i<onetofour.length;i++){
             for (int j=0;j<fivetoeight.length;j++){
+                //System.out.println("i = " + i + " j = " + j);
                 if (!ArraysOperation.duplicate(onetofour[i], fivetoeight[j])){
-                    System.out.print("[x1,x2,x3,x4] = "); System.out.println(Arrays.toString(onetofour[i]));
-                    System.out.print("[x5,x6,x7,x8] = "); System.out.println(Arrays.toString(fivetoeight[j]));
+                    // System.out.print("[x1,x2,x3,x4] = "); System.out.println(Arrays.toString(onetofour[i]));
+                    // System.out.print("[x5,x6,x7,x8] = "); System.out.println(Arrays.toString(fivetoeight[j]));
+                    System.out.println("[x1,x2,x3,x4] = " + Arrays.toString(onetofour[i]));                    
+                    System.out.println("[x5,x6,x7,x8] = " + Arrays.toString(fivetoeight[j])); 
                     System.out.println("");
                     // break outerloop;
                 }
@@ -68,8 +71,8 @@ class evaluation{
         int c1 = txtfile.c1; int arrone,arrfour;
         for (int two=0;two<arr.length;two++){
             for (int three=0;three<arr.length;three++){
-                if (two == three){}
-                else{
+                if (two != three){//}
+                //else{
                     arrfour = arr[three]+c1-arr[two];
                     arrone = c1-arr[two];
 
@@ -104,6 +107,7 @@ class evaluation{
                     arrfive = arr[seven]-arr[six];
                     arreight = c2+arr[six];
 
+                    //if ( ArraysOperation.in(arr, arrfive) & ArraysOperation.in(arr, arreight) & arrfive != arr[six] & arrfive != arr[seven] ){
                     if ( ArraysOperation.in(arr, arrfive) & ArraysOperation.in(arr, arreight) & arrfive != arr[six] & arrfive != arr[seven] & arrfive != arreight){
                         ans = Arrays.copyOf(ans, ans.length+1);
                         ans[ans.length-1] = arrfive;
