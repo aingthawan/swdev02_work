@@ -8,11 +8,9 @@ url = "https://www.porsche.com/pap/_thailand_/models/911/"
 web_data = requests.get(url)
 
 soup = BeautifulSoup(web_data.text, "html.parser")
-find_word = soup.find_all("div", {"class": "m-14-model-price"})
+# find_word = soup.find_all("div", {"class": "m-14-model-name"})
+find_word = soup.find_all("div", {"class": "m-14-model-name"})
 
 for i in find_word:
-    # spit the string
-    i = str(i).split('<div class="m-14-model-price">')[1]
-    # spit the string
-    i = str(i).split('</div>')[0]
+    
     print(i)
