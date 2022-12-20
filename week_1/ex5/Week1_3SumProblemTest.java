@@ -1,7 +1,6 @@
 package ex5;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-
 import org.junit.Test;
 
 public class Week1_3SumProblemTest {

@@ -20,7 +20,7 @@ public class week1_ex7 {
                     System.out.println("[x1,x2,x3,x4] = " + Arrays.toString(onetofour[i]));                    
                     System.out.println("[x5,x6,x7,x8] = " + Arrays.toString(fivetoeight[j])); 
                     System.out.println("");
-                    // break outerloop;
+                    //break outerloop;
                 }
             }
         }
