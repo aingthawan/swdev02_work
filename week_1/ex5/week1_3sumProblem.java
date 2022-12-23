@@ -44,9 +44,9 @@ public class week1_3sumProblem {
   }
 
   public static void main(String[] args) {
-    int[] arr = {10, 10, 10, 10, 10, 10};
+    // int[] arr = {10, 10, 10, 10, 10, 10};
     // int[] arr = {-1, 0, 1, 2, -1, -4};
-	  // int[] arr = {0, -1, 2, -3, 1, -2};
+	  int[] arr = {0, -1, 2, -3, 1, -2};
     int[][] ans = sum(arr);
     
     if (ans == null){
