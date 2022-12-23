@@ -12,7 +12,9 @@ find_word = soup.find_all("div", {"class": "m-14-model-price"})
 
 for i in find_word:
     # spit the string
+    print(i)
     i = str(i).split('<div class="m-14-model-price">')[1]
+    print(i)
     # spit the string
     i = str(i).split('</div>')[0]
     print(i)
