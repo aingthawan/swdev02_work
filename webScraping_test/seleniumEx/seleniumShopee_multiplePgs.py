@@ -74,7 +74,7 @@ def exportFile(outputDataframe, filepath, fileName):
 # main code
 def main():
     print("\nStart Scraping SHOPEE . . .")
-    toSearch = 'pan'
+    toSearch = 'กระทะทองแดง'
     print("Keyword : ", toSearch)
     pageToScrap = 5
 
