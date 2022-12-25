@@ -74,9 +74,9 @@ def exportFile(outputDataframe, filepath, fileName):
 # main code
 def main():
     print("\nStart Scraping SHOPEE . . .")
-    toSearch = 'mask'
+    toSearch = 'pan'
     print("Keyword : ", toSearch)
-    pageToScrap = 10
+    pageToScrap = 5
 
     openShopee(toSearch, pageToScrap)
 

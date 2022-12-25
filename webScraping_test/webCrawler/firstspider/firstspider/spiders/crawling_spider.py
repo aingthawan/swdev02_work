@@ -4,7 +4,8 @@ from scrapy.linkextractors import LinkExtractor
 
 # new class inherits from CrawlSpider class
 class CrawlingSpider(CrawlSpider):
-    # name for execute
+    # name for calling execute
+    # COMMAND : scrapy crawl toby -o output.json
     name = "toby"
     # allowed domains
     allowed_domains = ["toscrape.com"]

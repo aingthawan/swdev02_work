@@ -28,7 +28,7 @@ def openShopee(inputKeyword):
     # return html data
     time.sleep(5)
     raw_data = driver.page_source
-    driver.close();
+    driver.close()
     return raw_data
 
 # extract to output pandas table
