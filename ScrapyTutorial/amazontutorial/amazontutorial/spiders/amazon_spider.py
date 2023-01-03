@@ -14,16 +14,20 @@ class AmazonSpiderSpider(scrapy.Spider):
     def parse(self, response):
         items = AmazontutorialItem()
 
-        product_name = response.css('.a-size-medium::text').extract()
-        # multiple class css selector
-        product_author = response.css('.a-color-secondary .a-row .a-size-base+ .a-size-base , .a-color-secondary .a-size-base.s-link-style').css('::text').extract()
-        product_price = response.css('.s-price-instructions-style .a-price span span').css('::text').extract()
-        product_imagelink = response.css('.s-image-fixed-height::attr(src)').extract()
+        for product in response.css('.s-card-border'):
+            product_name = product.css('.a-size-medium::text').extract()
+            # multiple class css selector
+            product_author = product.css('.a-color-secondary .a-row .a-size-base+ .a-size-base , .a-color-secondary .a-size-base.s-link-style').css('::text').extract()
+            # join the price decimal
+            product_price = ''.join(product.css('.s-price-instructions-style .a-price-fraction , .s-price-instructions-style .a-price-whole').css('::text').extract())
+            product_imagelink = product.css('.s-image::attr(src)').extract()
 
-        items['product_name'] = product_name
-        items['product_author'] = product_author
-        items['product_price'] = product_price
-        items['product_imagelink'] = product_imagelink
+            items['product_name'] = product_name
+            items['product_author'] = product_author
+            items['product_price'] = product_price
+            items['product_imagelink'] = product_imagelink
+
+            yield items
 
         next_page = "https://www.amazon.com/s?i=stripbooks&rh=n%3A27&fs=true&page=" + str(AmazonSpiderSpider.page_number) + "&qid=1672744914&ref=sr_pg_1"
 
