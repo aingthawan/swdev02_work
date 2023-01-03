@@ -11,10 +11,11 @@ from ..items import QuotetutorialItem
 class QuoteSpider(scrapy.Spider):
     # name of spider
     name = 'quotes'
+    page_number = 2
 
     # list of URLs to scrape
     start_urls = [
-        'https://quotes.toscrape.com/'
+        'https://quotes.toscrape.com/page/1/'
     ] 
 
     # method to parse the response
@@ -37,3 +38,14 @@ class QuoteSpider(scrapy.Spider):
 
             # YEET! to pipelines.py
             yield items
+
+        # get next button URL
+        # next_page = response.css('li.next a::attr(href)').get()
+        next_page = "https://quotes.toscrape.com/page/" + str(QuoteSpider.page_number) + "/"
+        # if next button exist, go to next page
+        # if next_page is not None:
+        if QuoteSpider.page_number < 11:
+            # use funcution response.follow to go to next page 
+            # (go back to parse)
+            QuoteSpider.page_number += 1
+            yield response.follow(next_page, callback=self.parse)
