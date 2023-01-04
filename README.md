@@ -1,7 +1,8 @@
 # swdev02_work
 repo for keeping work of Software Developemt II
 
-Member :
+Member : Me Myself & I
 
-1 - Aingthawan Khruakhlai    ID 6401012610042
-
+JK, It's
+Aingthawan Khruakhlai    ID 6401012610042
+The one any only!
