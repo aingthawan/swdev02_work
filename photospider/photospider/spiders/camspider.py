@@ -25,4 +25,12 @@ class photospiderSpider(CrawlSpider):
     ]
 
     def parse_item(self, response):
-        yield response
+        # list of raw html
+        raw_request = response.css('article').extract()
+
+        for element in raw_request:
+            yield{
+                'title': element.css('.entry-title a::text').extract(),
+                'category' : element.css('span.cat').css('a::text').extract(),
+                'link' : element.css('.cat a::attr(href)').get(),
+            }
