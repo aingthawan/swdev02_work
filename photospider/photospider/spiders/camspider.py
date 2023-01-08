@@ -6,6 +6,10 @@ from scrapy.spiders import CrawlSpider, Rule
 # with links extractor, for rules set up
 from scrapy.linkextractors import LinkExtractor
 
+from ..items import PhotospiderItem
+
+import json
+
 class photospiderSpider(CrawlSpider):
     # CrawlSpider need a rules to follow 
     # and a parse function to parse with didn't name parse
@@ -21,16 +25,18 @@ class photospiderSpider(CrawlSpider):
     # links to slr reviews archive
     # https://www.35mmc.com/category/reviews-experinces/slrs/
     rules = [
-        Rule(LinkExtractor(allow='/category/reviews-experinces/slrs/'), callback='parse_item', follow=True)
+        Rule(LinkExtractor(allow='/category/reviews-experinces/(slrs|medium-format)/'), callback='parse_item', follow=True)
     ]
 
     def parse_item(self, response):
+        items = PhotospiderItem()
+
         # list of raw html
-        raw_request = response.css('article').extract()
+        raw_request = response.css('article')
 
         for element in raw_request:
-            yield{
-                'title': element.css('.entry-title a::text').extract(),
-                'category' : element.css('span.cat').css('a::text').extract(),
-                'link' : element.css('.cat a::attr(href)').get(),
-            }
+
+            items['title'] = element.css('.entry-title a::text')[0].extract()
+            items['category'] = element.css('span.cat').css('a::text')[0].extract()
+            items['link'] = element.css('.entry-title a::attr(href)')[0].extract()
+            yield items
