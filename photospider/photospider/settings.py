@@ -25,6 +25,10 @@ ROBOTSTXT_OBEY = True
 # Ref : https://github.com/rejoiceinhope/scrapy-proxy-pool
 PROXY_POOL_ENABLED = True
 
+
+DEPTH_LIMIT = 3
+
+
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
 

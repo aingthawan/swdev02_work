@@ -10,6 +10,8 @@ class PhotospiderItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
     title = scrapy.Field()
-    category = scrapy.Field()
-    link = scrapy.Field()
+    url = scrapy.Field()   
+    related_url = scrapy.Field()
+    raw_html = scrapy.Field()
+    
     pass

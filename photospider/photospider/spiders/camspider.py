@@ -17,26 +17,47 @@ class photospiderSpider(CrawlSpider):
     allowed_domains = ["35mmc.com"]
 
     start_urls = [
-        'https://www.35mmc.com/'
+        # 'https://www.35mmc.com/'
+        'https://www.35mmc.com/28/12/2022/nikon-fm2-camera-review/'
     ]
 
     # main page
     # https://www.35mmc.com/
     # links to slr reviews archive
     # https://www.35mmc.com/category/reviews-experinces/slrs/
-    rules = [
-        Rule(LinkExtractor(allow='/category/reviews-experinces/(slrs|medium-format)/'), callback='parse_item', follow=True)
-    ]
+    # rules = [
+    #     Rule(LinkExtractor(allow='/category/reviews-experinces/'), callback='parse_item', follow=True)
+    # ]
 
     def parse_item(self, response):
         items = PhotospiderItem()
+        related_url = []
+        related_url_text = ''
 
         # list of raw html
-        raw_request = response.css('article')
+        raw_request = response.css('article').get()
 
-        for element in raw_request:
+        items['title'] = response.css('.entry-title::text').get()    
+        items['url'] = response.request.url
 
-            items['title'] = element.css('.entry-title a::text')[0].extract()
-            items['category'] = element.css('span.cat').css('a::text')[0].extract()
-            items['link'] = element.css('.entry-title a::attr(href)')[0].extract()
-            yield items
+        backlink_list = response.css('.item-related a::attr(href)').extract()
+        i = 0
+        while i < len(backlink_list):
+            related_url.append(backlink_list[i])
+            related_url_text += backlink_list[i] + ' '
+            i += 2
+        items['related_url'] = related_url_text
+
+        items['raw_html'] = response.css('article').get()
+
+        yield items
+        # yield{
+        #     'title': response.css('.entry-title::text').get(),
+        #     'url': response.css('.item-related a::attr(href)').get(),
+        #     'related_url': related_url_text,
+        #     'raw_html': response.css('article').get()
+        # }
+
+    def follow_link(self, url_list):
+        for url in url_list:
+            yield scrapy.Request(url, callback=self.parse_item)

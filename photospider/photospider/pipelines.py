@@ -24,18 +24,20 @@ class PhotospiderPipeline:
         self.curr = self.conn.cursor()
 
     def create_table(self):
-        self.curr.execute("""DROP TABLE IF EXISTS 35mmc""")
-        self.curr.execute("""create table 35mmc(
+        self.curr.execute("""DROP TABLE IF EXISTS 35mmc_raw""")
+        self.curr.execute("""create table 35mmc_raw(
             title text,
-            category text,
-            link text
+            url text,
+            related_url text,
+            raw_html text
         )""")
     
     def store_db(self, item):
-        self.curr.execute("""insert into 35mmc values (%s, %s, %s)""", (
+        self.curr.execute("""insert into 35mmc_raw values (%s, %s, %s, %s)""", (
             item['title'],
-            item['category'],
-            item['link']
+            item['url'],
+            item['related_url'],
+            item['raw_html']
         ))
         self.conn.commit()
 
