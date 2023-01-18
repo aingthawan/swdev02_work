@@ -4,7 +4,7 @@
 # To Use : obj.clean(raw_text)
 #
 # dev : Aingkk.
-
+#                 UML Diagram
 #                +----------------+
 #                |   TextCleaner  |
 #                +----------------+
