@@ -1,22 +1,22 @@
-# File for class TextCleaner
+# Class TextCleaner
 # For Inverted Indexing
 # Input : Raw Text   ------>>  Output : Cleaned Token
 # To Use : obj.clean(raw_text)
 #
 # dev : Aingkk.
 #                 UML Diagram
-#                +----------------+
-#                |   TextCleaner  |
-#                +----------------+
-#                | -nlp: spacy    |
-#                | -stop_words    |
-#                +----------------+
-#                | +__init__()    |
-#                | +normalize()   |
+#                +---------------------+
+#                |   TextCleaner       |
+#                +---------------------+
+#                | -nlp: spacy         |
+#                | -stop_words         |
+#                +---------------------+
+#                | +__init__()         |
+#                | +normalize()        |
 #                | +remove_stopwords() |
-#                | +lemmatize()   |
-#                | +clean()       |
-#                +----------------+
+#                | +lemmatize()        |
+#                | +clean()            |
+#                +---------------------+
 
 import re
 import spacy
@@ -38,7 +38,7 @@ class TextCleaner:
         return " ".join(words)
 
     def lemmatize(self, raw_text):
-        """Perform lemmatization"""
+        """Perform lemmatization, return as a list of strings"""
         doc = self.nlp(raw_text)
         return [token.lemma_ for token in doc]
 
@@ -47,7 +47,3 @@ class TextCleaner:
         raw_text = self.normalize(raw_text)
         raw_text = self.remove_stopwords(raw_text)
         return self.lemmatize(raw_text)   
-
-# Example
-# obj = TextCleaner()
-# print(obj.clean("Film Camera"))        

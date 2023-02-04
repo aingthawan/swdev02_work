@@ -25,6 +25,7 @@ import validators
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urlparse
+import re
 
 class pageScraper:
     """Class for Scrape single page, Return dictionary URL, all backlinks and Raw Text"""
@@ -39,29 +40,30 @@ class pageScraper:
     def get_raw_html(self, url):
         """get raw html soup obj"""
         # webReq = requests.get(url)
-        return BeautifulSoup((requests.get(url)).text, "html.parser")
+        return requests.get(url)
     
-    def scrape_raw_text(self, soup_obj):
+    def scrape_raw_text(self, html_text):
         """Return raw text string from bs4 boject"""
-        return ' '.join([raw.text for raw in soup_obj.find_all(['h1', 'p'])])
+        # return ' '.join([raw.text for raw in soup_obj.find_all(['h1', 'p'])])
+        soup = BeautifulSoup(html_text, 'html.parser')
+        return soup.get_text()
     
-    def scrape_all_urls(self, soup_obj):
-        """Return list of all URLs string from bs4 object"""
-        return_url = []
-        for url_obj in soup_obj.find_all('a'):
-            url = url_obj.get('href')
-            if (url is not None) and validators.url(url) and (url not in return_url) and ((urlparse(url).netloc) in self.allowed_domain):
-                return_url.append(url)
-                # print(url)
-                # print(urlparse(url).netloc)
-        return return_url
+    def scrape_all_urls(self, html_text):
+        soup = BeautifulSoup(html_text, 'html.parser')
+        urls = []
+        for link in soup.find_all('a'):
+            url = link.get('href')
+            if url and re.match("^(http://|https://)", url) and not re.search(".(jpg|jpeg|png|gif)$", url):
+                urls.append(url)
+        return list(set(urls))
     
     def scrape_page(self, url):
         """Return a dictionary of url, all unrepeated backlinks and raw text"""
-        raw_soup_html = self.get_raw_html(url)
+        raw_soup_html = self.get_raw_html(url).text
         return {
             "url" : url,
             "backlinks" : self.scrape_all_urls(raw_soup_html),
             "rawText" : self.scrape_raw_text(raw_soup_html)
         }
-        
+
+            
