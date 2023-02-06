@@ -22,7 +22,7 @@ import re
 import spacy
 from nltk.corpus import stopwords
 
-class TextCleaner:
+class TextCleaners:
     """Designed for Inverted Indexing"""
     def __init__(self):
         self.nlp = spacy.load("en_core_web_sm")

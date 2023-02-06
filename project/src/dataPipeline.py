@@ -10,8 +10,9 @@
 # updateInvertedIndexing: update the inverted index table with the word count for each word in the website data.
 
 import sqlite3
+import ast
 
-class dataPipeline:
+class dataPipelines:
     """Class of function for Update / Remove data"""
     
     def __init__(self, database_file):
@@ -22,41 +23,51 @@ class dataPipeline:
         
     def createTable(self):
         # Create table for keeping domain name of url and times of referenced to
-        cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
         # Create a table for unique id for each url and list of all words in that url and list of url found on that page
-        cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
         # Create table for each word, number of documnet that conatain that word and dictionary of sorted key that are id of url and number of that word found on that link
-        cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
 
     def uncountRef(self, domain_name_list):
         """For uncount referenced domain"""
         for domain in domain_name_list:
-            query_check = f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'"
-            cursor.execute(query_check)
-            conn.commit()
+            # query_check = f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'"
+            self.cursor.execute(f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'")
+            self.conn.commit()
 
             
-    def removeInvertedIndex(self, words, web_id):
+#     def removeInvertedIndex(self, web_id, words):
+#         """Remove id from indexing and reduce docsfreq"""
+
+#         for word in words:
+#             # Retrieve the current values of Document_Freq and Inverted_Dict
+#             self.cursor.execute(f"SELECT Document_Freq, Inverted_Dict FROM Inverted_Index WHERE Word=?", (word,))
+#             result = self.cursor.fetchone()
+#             doc_freq, inverted_dict = result[0], result[1]
+
+#             # Decrement the Document_Freq value
+#             doc_freq -= 1
+
+#             # Convert the Inverted_Dict string to a dictionary and remove the entry for the Web_ID
+#             inverted_dict = eval(inverted_dict)
+#             inverted_dict.pop(str(web_id), None)
+
+#             # Update the values of Document_Freq and Inverted_Dict for the word
+#             self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq=?, Inverted_Dict=? WHERE Word=?", (doc_freq, str(inverted_dict), word))
+
+#         # Commit the changes to the database
+#         self.conn.commit()
+    
+    def removeInvertedIndex(self, web_id, words):
         """Remove id from indexing and reduce docsfreq"""
-
         for word in words:
-            # Retrieve the current values of Document_Freq and Inverted_Dict
-            self.cursor.execute(f"SELECT Document_Freq, Inverted_Dict FROM Inverted_Index WHERE Word=?", (word,))
-            result = self.cursor.fetchone()
-            doc_freq, inverted_dict = result[0], result[1]
-
-            # Decrement the Document_Freq value
-            doc_freq -= 1
-
-            # Convert the Inverted_Dict string to a dictionary and remove the entry for the Web_ID
-            inverted_dict = eval(inverted_dict)
-            inverted_dict.pop(str(web_id), None)
-
-            # Update the values of Document_Freq and Inverted_Dict for the word
-            self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq=?, Inverted_Dict=? WHERE Word=?", (doc_freq, str(inverted_dict), word))
-
-        # Commit the changes to the database
+            self.cursor.execute("SELECT Inverted_Dict FROM Inverted_Index WHERE Word=?", (word,))
+            inverted_dict = eval(self.cursor.fetchone()[0])
+            inverted_dict.pop(web_id, None)
+            self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq=Document_Freq-1, Inverted_Dict=? WHERE Word=?", (str(inverted_dict), word))
         self.conn.commit()
+
         
     def removeWebData(self, url):
         """Remove data from web_Data"""
@@ -76,10 +87,22 @@ class dataPipeline:
             next_id += 1
         return next_id
     
+    def fetch_data_by_url(self, url):
+        """get data from row by url"""
+        self.cursor.execute("SELECT Web_ID, URL, All_Word, Ref_To FROM web_Data WHERE URL=?", (url,))
+        # Fetch the result
+        result = self.cursor.fetchone()
+        # Return the result
+        return {
+            'Web_ID' : result[0],
+            'URL' : result[1],
+            'All_Word' : result[2].split(' , '),
+            'Ref_To' : result[3].split(' , ')
+        }
 
     # ==============================================================
 
-    
+#     OKAY ================================================================================    
     # cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
     def updateReferenceDomain(self, domains):
         """Update reference domain receiving a list of domain"""
@@ -99,10 +122,12 @@ class dataPipeline:
         # Commit the changes to the database
         self.conn.commit()
     
+#     OKAY ================================================================================
     def updateWebData(self, web_id, url, all_words, ref_to):
         """Insert new url data into web_Data"""
-        all_words = " ".join(words)
-        ref_to = ",".join(domains)
+        words = list(all_words.keys())
+        all_words = " , ".join(words)
+        ref_to = " , ".join(ref_to)
         
         self.cursor.execute(f"INSERT INTO web_Data (Web_ID, URL, All_Word, Ref_To) VALUES (?, ?, ?, ?)", (web_id, url, all_words, ref_to))
         self.conn.commit()
@@ -114,11 +139,36 @@ class dataPipeline:
         for word in word_list:
             word_count[word] = word_count.get(word, 0) + 1
         for word, count in word_count.items():
-            self.cursor.execute(f"SELECT Word FROM Inverted_Index WHERE Word = '{word}'")
+            self.cursor.execute(f"SELECT Word, Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'")
             result = self.cursor.fetchone()
             if result:
-                self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq = Document_Freq + 1, Inverted_Dict = Inverted_Dict || '{{{web_id}:{count}}}' WHERE Word = '{word}'")
+                inverted_dict = eval(result[1])
+                inverted_dict[web_id] = count
+                inverted_dict = str(inverted_dict)
+                self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq = Document_Freq + 1, Inverted_Dict = '{inverted_dict}' WHERE Word = '{word}'")
             else:
                 self.cursor.execute(f"INSERT INTO Inverted_Index (Word, Document_Freq, Inverted_Dict) VALUES ('{word}', 1, '{{{web_id}:{count}}}')")
         self.conn.commit()
+
+    
+    # def updateInvertedIndexing(self, web_id, word_list):
+    #     word_count = {}
+    #     for word in word_list:
+    #         word_count[word] = word_count.get(word, 0) + 1
+    #     for word, count in word_count.items():
+    #         self.cursor.execute(f"SELECT Word FROM Inverted_Index WHERE Word = '{word}'")
+    #         result = self.cursor.fetchone()
+    #         if result:
+    #             self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq = Document_Freq + 1, Inverted_Dict = Inverted_Dict || '{','.join([f'{{{web_id}:{count}}}' for web_id, count in word_count.items()])}' WHERE Word = '{word}'")
+    #         else:
+    #             self.cursor.execute(f"INSERT INTO Inverted_Index (Word, Document_Freq, Inverted_Dict) VALUES ('{word}', 1, '{','.join([f'{{{web_id}:{count}}}' for web_id, count in word_count.items()])}')")
+    #     self.conn.commit()
+
+
         
+    # method for terminate the connection
+    def close(self):
+        """Close the connection"""
+        # commit the changes
+        self.conn.commit()
+        self.conn.close

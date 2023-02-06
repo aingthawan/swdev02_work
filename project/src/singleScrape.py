@@ -27,20 +27,27 @@ import requests
 from urllib.parse import urlparse
 import re
 
-class pageScraper:
+class pageScrapers:
     """Class for Scrape single page, Return dictionary URL, all backlinks and Raw Text"""
     def __init__(self):
-        # Set allowed domain
-        self.allowed_domain = [
-            "artyt.me",
-            "www.35mmc.com",
-            "www.dpreview.com"
-        ]
+        # Set header
+        self.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}        
+        # Set allowed domain 
+        # self.allowed_domain = [
+        #     "artyt.me",
+        #     "www.35mmc.com",
+        #     "www.dpreview.com"
+        # ]
     
     def get_raw_html(self, url):
         """get raw html soup obj"""
         # webReq = requests.get(url)
-        return requests.get(url)
+        # return requests.get(url, headers=self.headers)
+        res_temp = requests.get(url, headers=self.headers)
+        if res_temp.status_code == 200:
+            return res_temp
+        else:
+            return None
     
     def scrape_raw_text(self, html_text):
         """Return raw text string from bs4 boject"""
@@ -65,5 +72,3 @@ class pageScraper:
             "backlinks" : self.scrape_all_urls(raw_soup_html),
             "rawText" : self.scrape_raw_text(raw_soup_html)
         }
-
-            

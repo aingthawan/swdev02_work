@@ -5,7 +5,7 @@
 import sqlite3
 from urllib.parse import urlparse
 
-class LinkChecker:
+class LinkCheckers:
     """Class for working on URLs"""
     
     def __init__(self, database_file):
@@ -13,13 +13,11 @@ class LinkChecker:
         self.conn = sqlite3.connect(database_file)
         self.cursor = self.conn.cursor()
     
-    def alreadyScrape(self, url_to_check, table, column)
-        """Check whether url already scrape, Return in True or false
-        Table : Reference_Domain,   
-        column_name : Domain_Name """
+    def alreadyScrape(self, url_to_check):
+        """Check whether url already scrape, Return in True or false"""
 
-        query_check = f"SELECT * FROM {table_name} WHERE {column_name}='{url_to_check}'"
-        self.cursor.execute(query_check)
+        # query_check = f"SELECT * FROM Web_Data WHERE URL='{url_to_check}'"
+        self.cursor.execute(f"SELECT * FROM Web_Data WHERE URL='{url_to_check}'")
         result = self.cursor.fetchone()
 
         if result:
@@ -42,3 +40,9 @@ class LinkChecker:
         domain2 = urlparse(url2).hostname
         return domain1 == domain2
     
+    # method for terminate the connection
+    def close(self):
+        """Close the connection"""
+        # commit the changes
+        self.conn.commit()
+        self.conn.close
