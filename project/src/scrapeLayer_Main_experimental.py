@@ -3,6 +3,7 @@ from dataPipeline import *
 from linkChecker import *
 from singleScrape import *
 
+import concurrent.futures
 from urllib.parse import urlparse
 
 def get_domain(url):
@@ -94,39 +95,33 @@ def scrapeLevel(origin_url, depth, depth_limit):
 
 
     
-# main program
+def scrape_concurrently(urls, depth_limit):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_url = {executor.submit(scrapeLevel, url, 1, depth_limit): url for url in urls}
+        for future in concurrent.futures.as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                result = future.result()
+                print(f"Successfully finished scraping {url}: {result}")
+            except Exception as exc:
+                print(f"Failed to scrape {url}: {exc}")
+
 if __name__ == "__main__":
+    tinderURL = [
+        "https://www.35mmc.com/02/02/2023/hedeco-lime-two-low-profile-shoe-mount-light-meter-review/",
+        "https://petapixel.com/2023/02/03/canon-usa-settles-with-employees-affected-by-2020-ransomware-attack/",
+        "https://photographylife.com/reviews/fuji-x100f",
+        "https://www.35mmc.com/14/10/2021/pentax-iqzoom-928-review/"
+    ]
 
-    # tinderURL = {
-    #     "https://photographylife.com/reviews/fuji-x100f",
-    #     "https://www.dpreview.com/reviews/sony-a7rv-review?utm_source=self-desktop&utm_medium=marquee&utm_campaign=traffic_source",
-    #     "https://www.35mmc.com/02/02/2023/hedeco-lime-two-low-profile-shoe-mount-light-meter-review/",
-    #     "https://petapixel.com/2023/02/03/canon-usa-settles-with-employees-affected-by-2020-ransomware-attack/",
-    #     "https://www.35mmc.com/14/10/2021/pentax-iqzoom-928-review/"
-    # }
-
-    tinderURL = {
-        "https://www.35mmc.com/02/02/2023/hedeco-lime-two-low-profile-shoe-mount-light-meter-review/"
-    }
-
-    filename = "database_test3.db"
+    filename = "database_test4_experimental.db"
     db_path = "project\database\\" + filename
 
     TextCleaner = TextCleaners()
-    pageScraper = pageScrapers()
     linkChecker = LinkCheckers(db_path)
     dataPipeline = dataPipelines(db_path)
+    pageScraper = pageScrapers()
     
     depth_limit = 2
-    start_depth = 1
 
-    print("\n\nStarting . . .\n\n")
-    for link in tinderURL:
-        scrapeLevel(link, start_depth, depth_limit)
-        
-    
-    print("\n\nDone\n\n")
-
-    # close all connection to database
-    dataPipelines.close()
-    linkChecker.close()
+    scrape_concurrently(tinderURL, depth_limit)
