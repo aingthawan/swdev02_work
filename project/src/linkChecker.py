@@ -4,6 +4,7 @@
 
 import sqlite3
 from urllib.parse import urlparse
+import requests
 
 class LinkCheckers:
     """Class for working on URLs"""
@@ -25,14 +26,24 @@ class LinkCheckers:
         else:
             return False
 
+    # def checkAccessibility(self, url):
+    #     """Check Whether URL is still accessible"""
+    #     try:
+    #         response = requests.get(url)
+    #         response.raise_for_status()
+    #         return True
+    #     except requests.exceptions.HTTPError as err:
+    #         return False
+
     def checkAccessibility(self, url):
         """Check Whether URL is still accessible"""
         try:
             response = requests.get(url)
             response.raise_for_status()
             return True
-        except requests.exceptions.HTTPError as err:
+        except (requests.exceptions.HTTPError, requests.exceptions.RequestException) as err:
             return False
+
 
     def compareDomains(self, url1, url2):
         """Compare two url domain"""

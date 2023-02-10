@@ -3,7 +3,7 @@ import unittest
 
 class TestTextCleaner(unittest.TestCase):
     def setUp(self):
-        self.tc = TextCleaner()
+        self.tc = TextCleaners()
 
     def test_normalize(self):
         raw_text = "This Is a Test"
