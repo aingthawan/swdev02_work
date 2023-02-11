@@ -32,30 +32,20 @@ class pageScrapers:
     def __init__(self):
         # Set header
         self.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-        self.proxies = self.read_proxies_from_file("project\src\proxy\proxy_valid.txt")
-    
-    def read_proxies_from_file(self, filename):
-        """Read proxies from a file and return as a list"""
-        proxies = []
-        with open(filename, "r") as f:
-            for line in f:
-                proxies.append(line.strip())
-        return proxies
     
     def get_raw_html(self, url):
-        """get raw html soup obj using a rotating proxy"""
-        for proxy in self.proxies:
-            try:
-                res_temp = requests.get(url, headers=self.headers, proxies={"http": proxy, "https": proxy})
-                if res_temp.status_code == 200:
-                    return res_temp
-            except:
-                # catch any exception and continue to next proxy
-                continue
-        return None
+        """get raw html soup obj"""
+        # webReq = requests.get(url)
+        # return requests.get(url, headers=self.headers)
+        res_temp = requests.get(url, headers=self.headers)
+        if res_temp.status_code == 200:
+            return res_temp
+        else:
+            return None
     
     def scrape_raw_text(self, html_text):
         """Return raw text string from bs4 boject"""
+        # return ' '.join([raw.text for raw in soup_obj.find_all(['h1', 'p'])])
         soup = BeautifulSoup(html_text, 'html.parser')
         return soup.get_text()
     
