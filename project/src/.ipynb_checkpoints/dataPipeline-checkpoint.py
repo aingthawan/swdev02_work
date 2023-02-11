@@ -172,5 +172,3 @@ class dataPipelines:
         # commit the changes
         self.conn.commit()
         self.conn.close
-
-    

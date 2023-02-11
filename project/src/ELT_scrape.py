@@ -22,6 +22,7 @@ class get_raw_content:
     def crawl(self, url, current_depth, limit_depth):
         """Crawl the website and keep the raw content in the database"""
         # check if the current depth is less than the limit depth
+        print("at : ", url)
         if current_depth <= limit_depth:
             # check if url not exists in the raw database
             if self.rk.checkRaw(url):
@@ -55,19 +56,20 @@ class get_raw_content:
 if __name__ == "__main__":
 
     tinderURL = {
-        "https://photographylife.com/reviews/fuji-x100f",
-        "https://www.dpreview.com/reviews/sony-a7rv-review?utm_source=self-desktop&utm_medium=marquee&utm_campaign=traffic_source",
+        # "https://photographylife.com/reviews/fuji-x100f",
+        # "https://www.dpreview.com/reviews/sony-a7rv-review?utm_source=self-desktop&utm_medium=marquee&utm_campaign=traffic_source",
         "https://www.35mmc.com/02/02/2023/hedeco-lime-two-low-profile-shoe-mount-light-meter-review/",
-        "https://petapixel.com/2023/02/03/canon-usa-settles-with-employees-affected-by-2020-ransomware-attack/",
-        "https://www.35mmc.com/14/10/2021/pentax-iqzoom-928-review/"
+        # "https://petapixel.com/2023/02/03/canon-usa-settles-with-employees-affected-by-2020-ransomware-attack/",
+        # "https://www.35mmc.com/14/10/2021/pentax-iqzoom-928-review/"
     }
 
-    filename = "database_elt_raw_test3.db"
-    db_path = "project\database\\" + filename
+    rawfilename = "database_elt_raw2.db"
+    mainfilename = "database_elt_main2.db"
+    db_path = "project\database\\"
 
-    grc = get_raw_content(db_path)
+    grc = get_raw_content(db_path+rawfilename, db_path+mainfilename)
     start_depth = 1
-    limit_depth = 1
+    limit_depth = 7
 
     for link in tqdm.tqdm(tinderURL):
         grc.crawl(link, start_depth, limit_depth)
