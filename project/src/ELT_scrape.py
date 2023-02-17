@@ -22,34 +22,68 @@ class get_raw_content:
     def crawl(self, url, current_depth, limit_depth):
         """Crawl the website and keep the raw content in the database"""
         # check if the current depth is less than the limit depth
-        print("at : ", url)
-        if current_depth <= limit_depth:
-            # check if url not exists in the raw database
-            if self.rk.checkRaw(url):
-                # print("Already exists in the database")
-                pass
-            else:
-                # get the raw content
-                get_raw = self.ps.get_raw_html(url)
-                # check if the raw content is not empty
-                if get_raw is not None:
-                    # get all the links in the page
-                    all_links = self.ps.scrape_all_urls(get_raw.text)
-                    # insert the raw content into the database
-                    self.rk.insertRaw(url, get_raw.text)
-                else:
+        try:
+            if current_depth <= limit_depth:
+                # check if url not exists in the raw database or main database
+                if self.rk.checkRaw(url) or self.lc.alreadyScrape(url):
+                    # print("Already exists in the database")
                     pass
-
-                # crawl the links
-                for link in all_links:
-                    # check if the link is from the same domain
-                    if self.get_domain(link) == self.get_domain(url):
-                        self.crawl(link, current_depth + 1, limit_depth)
+                else:
+                    # print("Crawling: ", url)
+                    # get the raw content
+                    get_raw = self.ps.get_raw_html(url)
+                    # check if the raw content is not empty
+                    if get_raw is not None:
+                        # get all the links in the page
+                        # all_links = self.ps.scrape_all_urls(get_raw)
+                        # insert the raw content into the database
+                        self.rk.insertRaw(url, get_raw)
                     else:
                         pass
-        else:
-            # print("Limit depth reached")
+
+                    # crawl all the back links
+                    for link in self.ps.scrape_all_urls(get_raw):
+                        # check if the link is from the same domain and the current depth is less than the limit depth, then crawl the link
+                        if (current_depth+1 <= limit_depth):
+                            if (self.get_domain(link) == self.get_domain(url)):
+                                print("Crawling: ", link)
+                                self.crawl(link, current_depth + 1, limit_depth)
+                            else:
+                                print("not from the same domain")
+                                pass
+                        else:
+                            print("Limit depth reached")
+                            pass
+            else:
+                pass
+        # if there is an error, just pass
+        except Exception as e:
+            print(e)
             pass
+
+
+    # def crawl_debug(self, url, current_depth, limit_depth):
+    #     if current_depth <= limit_depth:
+    #         if self.rk.checkRaw(url) or self.lc.alreadyScrape(url):
+    #             print("Already exists in the database")
+    #             pass
+    #         else:
+    #             print("Crawling: ", url)
+    #             get_raw = self.ps.get_raw_html(url)
+    #             print("Raw content: ", get_raw[:100])
+    #             if get_raw is not None:
+    #                 print("Content OK")
+    #                 print("Valid Child links: ")
+    #                 all_links = self.ps.scrape_all_urls(get_raw)
+    #                 for link in all_links:
+    #                     if self.get_domain(link) == self.get_domain(url):
+    #                         print(link)
+    #             else:
+    #                 pass
+    #     else:
+    #         print("Limit depth reached")
+    #         pass
+
 
     
 
@@ -58,20 +92,65 @@ if __name__ == "__main__":
     tinderURL = {
         # "https://photographylife.com/reviews/fuji-x100f",
         # "https://www.dpreview.com/reviews/sony-a7rv-review?utm_source=self-desktop&utm_medium=marquee&utm_campaign=traffic_source",
-        "https://www.35mmc.com/02/02/2023/hedeco-lime-two-low-profile-shoe-mount-light-meter-review/",
+        # "https://www.35mmc.com/02/02/2023/hedeco-lime-two-low-profile-shoe-mount-light-meter-review/",
         # "https://petapixel.com/2023/02/03/canon-usa-settles-with-employees-affected-by-2020-ransomware-attack/",
-        # "https://www.35mmc.com/14/10/2021/pentax-iqzoom-928-review/"
+        # "https://www.35mmc.com/14/10/2021/pentax-iqzoom-928-review/",
+        # "https://www.photographyblog.com/reviews/om_system_om_5_review",
+        # "https://www.outdoorphotographer.com/on-location/featured-stories/",
+        # "https://www.peerspace.com/resources/category/photography/"
+        # "https://www.outdoorphotographer.com/on-location/travel/"
+        # "https://petapixel.com/topic/reviews/",
+        # "https://petapixel.com/2022/11/23/zhiyuns-fiveray-m40-pocket-light-and-f100-light-stick-are-super-bright/",
+        "https://petapixel.com/2023/02/16/haunting-footage-of-titanic-shipwreck-released-for-the-first-time/",
     }
 
-    rawfilename = "database_elt_raw2.db"
+    rawfilename = "database_elt_raw_backup4.db"
     mainfilename = "database_elt_main2.db"
     db_path = "project\database\\"
 
     grc = get_raw_content(db_path+rawfilename, db_path+mainfilename)
     start_depth = 1
-    limit_depth = 7
+    limit_depth = 4
 
-    for link in tqdm.tqdm(tinderURL):
+    for link in (tinderURL):
+    # for link in tinderURL:
+        print("Crawling: ", link)
         grc.crawl(link, start_depth, limit_depth)
 
     print("\n\nDone\n\n")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#                                     ,-~ |
+#        ________________          o==]___|
+#       |                |            \ \
+#       |________________|            /\ \
+#  __  /  _,-----._      )           |  \ \.
+# |_||/_-~         `.   /()          |  /|]_|_____
+#   |//              \ |              \/ /_-~     ~-_
+#   //________________||              / //___________\
+#  //__|______________| \____________/ //___/-\ \~-_
+# ((_________________/_-o___________/_//___/  /\,\  \
+#  |__/(  ((====)o===--~~                 (  ( (o/)  )
+#       \  ``==' /                         \  `--'  /
+#        `-.__,-'       Vespa P-200 E       `-.__,-'
+# 
+# Ref : https://www.asciiart.eu/vehicles/motorcycles

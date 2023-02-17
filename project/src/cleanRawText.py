@@ -21,6 +21,7 @@
 import re
 import spacy
 from nltk.corpus import stopwords
+from bs4 import BeautifulSoup
 
 class TextCleaners:
     """Designed for Inverted Indexing"""
@@ -44,6 +45,38 @@ class TextCleaners:
 
     def clean(self, raw_text):
         """Clean text by normalizing, removing stopwords, and lemmatizing"""
+        # For user query
         raw_text = self.normalize(raw_text)
         raw_text = self.remove_stopwords(raw_text)
         return self.lemmatize(raw_text)   
+
+    def clean_raw(self, raw_text):
+        """Clean text by normalizing, removing stopwords, and lemmatizing"""
+        # For raw text
+        try: 
+            from bs4 import BeautifulSoup
+
+            soup = BeautifulSoup(raw_text, 'html.parser')
+            raw_text = ""
+
+            # Only extract text from specific tags (e.g. p, h1, etc.)
+            for tag in ['p', 'h1', 'h2', 'h3', 'article']:
+                elements = soup.find_all(tag)
+                for element in elements:
+                    raw_text += " ".join(element.stripped_strings) + " "
+        except:
+            # If input is not HTML, try processing it as XML
+            import xml.etree.ElementTree as ET
+            root = ET.fromstring(raw_text)
+            raw_text = ""
+
+            # Only extract text from specific tags (e.g. p, h1, etc.)
+            for tag in ['p', 'h1', 'h2', 'h3', 'article']:
+                elements = root.findall(tag)
+                for element in elements:
+                    raw_text += element.text + " "
+
+        raw_text = self.normalize(raw_text)
+        raw_text = self.remove_stopwords(raw_text)
+        return self.lemmatize(raw_text)
+

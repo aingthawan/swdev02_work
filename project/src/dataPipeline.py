@@ -26,7 +26,7 @@ class dataPipelines:
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
         # Create a table for unique id for each url and list of all words in that url and list of url found on that page
         self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
-        # Create table for each word, number of documnet that conatain that word and dictionary of sorted key that are id of url and number of that word found on that link
+        # Create table for each word, number of document that contain that word and dictionary of sorted key that are id of url and number of that word found on that link
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
 
     def uncountRef(self, domain_name_list):
@@ -92,17 +92,38 @@ class dataPipelines:
         self.cursor.execute("SELECT Web_ID, URL, All_Word, Ref_To FROM web_Data WHERE URL=?", (url,))
         # Fetch the result
         result = self.cursor.fetchone()
-        # Return the result
-        return {
-            'Web_ID' : result[0],
-            'URL' : result[1],
-            'All_Word' : result[2].split(' , '),
-            'Ref_To' : result[3].split(' , ')
-        }
+        # if found, then return the result
+        if result:
+            # Return the result
+            return {
+                'Web_ID' : result[0],
+                'URL' : result[1],
+                'All_Word' : result[2].split(' , '),
+                'Ref_To' : result[3].split(' , ')
+            }
+        # if not found, return None
+        else:
+            return None
 
-    # ==============================================================
+    def fetch_data_by_id(self, web_id):
+        """get data from row by id"""
+        self.cursor.execute("SELECT Web_ID, URL, All_Word, Ref_To FROM web_Data WHERE Web_ID=?", (web_id,))
+        # Fetch the result
+        result = self.cursor.fetchone()
+        # if found, then return the result
+        if result:
+            # Return the result
+            return {
+                'Web_ID' : result[0],
+                'URL' : result[1],
+                'All_Word' : result[2].split(' , '),
+                'Ref_To' : result[3].split(' , ')
+            }
+        # if not found, return None
+        else:
+            return None
 
-#     OKAY ================================================================================    
+
     # cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
     def updateReferenceDomain(self, domains):
         """Update reference domain receiving a list of domain"""
