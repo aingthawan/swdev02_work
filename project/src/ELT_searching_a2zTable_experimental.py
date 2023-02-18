@@ -79,17 +79,6 @@ class invertedIndexSearch:
     
     def invertedIndexSearch(self, cleaned_user_query):
         """return a list of inverted index search web ID"""
-        # print("Searching Query : ", user_query)
-        # list_query = self.queryCleaner(user_query)
-        # print("Cleaned Query : ", list_query)
-        # temp_dict = self.getInvertedIndexDict(list_query)
-        # if temp_dict != None:
-        #     print("Results : ")
-        #     return self.get_common_id(temp_dict)
-        # else:
-        #     # print("No result found")
-        #     return None
-
         # get inverted index time
         start_time = time.time()
         temp = self.get_common_id(self.getInvertedIndexDict(cleaned_user_query))
@@ -99,85 +88,37 @@ class invertedIndexSearch:
         return temp
     
     def TFScore(self, word, IDlist):
-        """return the TF score for each id in the id list to a term"""
-        score_temp = {}
-        # start_time = time.time()
-        for ids in IDlist:
-            # total word in the document
-            total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))
-            
-            # total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
-            
-            # get first letter of the word
-            first_letter = word[0]
-            # get ascii value of the first letter
-            first_letter_ascii = ord(first_letter)
-            if first_letter_ascii >= 97 and first_letter_ascii <= 122:
-                # to table name
-                table_name = first_letter + "_Inverted_Index"
-                # self.curr.execute(f"SELECT * FROM {table_name} WHERE Word = '{word}'")
-                total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM {table_name} WHERE Word = '{word}'").fetchone()[0])[ids]
-            else:
-                # self.curr.execute(f"SELECT * FROM other_Inverted_Index WHERE Word = '{word}'")
-                total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM other_Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
-            
-            score_temp[ids] = total_term / total_words
-        end_time = time.time()
-        # print("TF Score Time : ", end_time - start_time)
-        return score_temp
-        
-
+        """Return the TF score for each id in the id list to a term."""
+        if not IDlist:
+            return {}
+        first_letter = word[0]
+        first_letter_ascii = ord(first_letter)
+        if first_letter_ascii >= 97 and first_letter_ascii <= 122:
+            # to table name
+            table_name = first_letter + "_Inverted_Index"
+        else:
+            table_name = "other_Inverted_Index"
+        query = f"SELECT Web_ID, Inverted_Dict, All_Word FROM web_Data JOIN {table_name} ON web_Data.Web_ID = {table_name}.Web_ID WHERE {table_name}.Word = ? AND web_Data.Web_ID IN ({','.join('?'*len(IDlist))})"
+        rows = self.curr.execute(query, [word] + IDlist).fetchall()
+        doc_info = {row[0]: (eval(row[1]), row[2]) for row in rows}
+        return {doc_id: sum(doc_info[doc_id][0].get(word, 0) for word in doc_info[doc_id][1].split(" , ")) / len(doc_info[doc_id][1].split(" , "))
+                for doc_id in IDlist}
+    
     def IDFScore(self, word_list):
-        """return the IDF score dictionary of each word in the word list"""
-        # start_time = time.time()
-        score_temp = {}
-        for word in word_list:
-            # get total document
-            self.curr.execute("SELECT COUNT(*) FROM web_Data")
-            total_doc = self.curr.fetchone()[0]
-            # get total document contain the word
-            
-            # self.curr.execute(f"SELECT Document_Freq FROM Inverted_Index WHERE Word = '{word}'")
-            # get first letter of the word
-            first_letter = word[0]
-            # get ascii value of the first letter
-            first_letter_ascii = ord(first_letter)
-            if first_letter_ascii >= 97 and first_letter_ascii <= 122:
-                # to table name
-                table_name = first_letter + "_Inverted_Index"
-                # self.curr.execute(f"SELECT * FROM {table_name} WHERE Word = '{word}'")
-                self.curr.execute(f"SELECT Document_Freq FROM {table_name} WHERE Word = '{word}'")
-            else:
-                # self.curr.execute(f"SELECT * FROM other_Inverted_Index WHERE Word = '{word}'")
-                self.curr.execute(f"SELECT Document_Freq FROM other_Inverted_Index WHERE Word = '{word}'")
-            
-            total_doc_contain = self.curr.fetchone()[0]
-            score_temp[word] = math.log(total_doc / total_doc_contain)
-        # end_time = time.time()
-        # print("IDF Score Time : ", end_time - start_time)
-        return score_temp
-
-    # Version 1
-    # def TFIDFRank(self, word_list, IDlist):
-    #     """return the ranked ID list from the TF-IDF score"""
-    #     # time for TF-IDF
-    #     start_time = time.time()
-    #     # calculate the IDF score
-    #     idf_dict = self.IDFScore(word_list)
-    #     tf_dict = {}
-    #     for word in word_list:
-    #         tf_dict[word] = self.TFScore(word, IDlist)
-    #     # calculate the TF-IDF score
-    #     final_score_dict = {}
-    #     for ids in IDlist:
-    #         final_score_dict[ids] = 0
-    #         for word in word_list:
-    #             final_score_dict[ids] += tf_dict[word][ids] * idf_dict[word]
-    #     # sort the final score dictionary descending
-    #     sorted_final_score_dict = {k: v for k, v in sorted(final_score_dict.items(), key=lambda item: item[1], reverse=True)}
-    #     end_time = time.time()
-    #     print("TF-IDF Ranking Time : ", end_time - start_time)
-    #     return sorted_final_score_dict.keys()
+        """Return the IDF score dictionary of each word in the word list."""
+        if not word_list:
+            return {}
+        first_letters = {word[0] for word in word_list}
+        doc_count = self.curr.execute("SELECT COUNT(*) FROM web_Data").fetchone()[0]
+        queries = [f"SELECT Word, Document_Freq FROM {letter}_Inverted_Index WHERE Word IN ({','.join('?'*len(word_list))})"
+                for letter in first_letters]
+        if ' ' in word_list:
+            queries.append(f"SELECT Word, Document_Freq FROM other_Inverted_Index WHERE Word IN ({','.join('?'*len(word_list))})")
+        all_doc_freqs = {}
+        for query in queries:
+            doc_freqs = dict(self.curr.execute(query, word_list).fetchall())
+            all_doc_freqs.update(doc_freqs)
+        return {word: math.log(doc_count / freq) for word, freq in all_doc_freqs.items()}
 
     # Version 2
     def TFIDFRank(self, word_list, IDlist):

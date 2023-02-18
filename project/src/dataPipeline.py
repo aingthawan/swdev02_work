@@ -35,6 +35,29 @@ class dataPipelines:
             # query_check = f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'"
             self.cursor.execute(f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'")
             self.conn.commit()
+    
+    # def uncountRef(self, domain_name_list):
+    #     """For uncount referenced domain"""
+    #     for domain in domain_name_list:
+    #         # get ref_count of domain
+    #         self.cursor.execute(f"SELECT Ref_Count FROM Reference_Domain WHERE Domain_Name = '{domain}'")
+    #         result = self.cursor.fetchone()
+    #         # check if domain exist in database
+    #         print("result: ", result)
+    #         if result:
+    #             print("uncountRef: ", domain, "ref_count: ", result[0])
+    #             ref_count = result[0]
+    #             if ref_count > 0:
+    #             # if  ref_count more than 0
+    #                 self.cursor.execute(f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'")
+    #                 self.conn.commit()
+    #             else:
+    #                 # the count can't be less than 0
+    #                 print(f"Ref_Count for {domain} is already 0")
+    #         else:
+    #             # not found in database
+    #             print(f"{domain} not found in database")
+
 
             
 #     def removeInvertedIndex(self, web_id, words):
