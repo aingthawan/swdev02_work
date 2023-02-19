@@ -131,9 +131,6 @@ class invertedIndexSearch:
         # get document frequency for all words in the word list
         word_idf_dict = {}
         for word in word_list:
-            # ////////////////////////////////////////////
-            # ////////////////////////////////////////////
-            # self.curr.execute(f"SELECT Document_Freq FROM Inverted_Index WHERE Word = '{word}'")
             # get first letter of the word
             first_letter = word[0]
             # get ascii value of the first letter
@@ -141,13 +138,9 @@ class invertedIndexSearch:
             if first_letter_ascii >= 97 and first_letter_ascii <= 122:
                 # to table name
                 table_name = first_letter + "_Inverted_Index"
-                # self.curr.execute(f"SELECT * FROM {table_name} WHERE Word = '{word}'")
                 self.curr.execute(f"SELECT Document_Freq FROM {table_name} WHERE Word = '{word}'")
             else:
-                # self.curr.execute(f"SELECT * FROM other_Inverted_Index WHERE Word = '{word}'")
                 self.curr.execute(f"SELECT Document_Freq FROM other_Inverted_Index WHERE Word = '{word}'")
-            # ////////////////////////////////////////////
-            # ////////////////////////////////////////////
             total_doc_contain = self.curr.fetchone()[0]
             word_idf_dict[word] = math.log(total_doc / total_doc_contain)
         # calculate the TF-IDF score for all documents in the ID list
@@ -156,9 +149,6 @@ class invertedIndexSearch:
             final_score_dict[ids] = 0
             total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))
             for word in word_list:
-                # ////////////////////////////////////////////
-                # ////////////////////////////////////////////
-                # total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
                 # get first letter of the word
                 first_letter = word[0]
                 # get ascii value of the first letter
@@ -166,13 +156,9 @@ class invertedIndexSearch:
                 if first_letter_ascii >= 97 and first_letter_ascii <= 122:
                     # to table name
                     table_name = first_letter + "_Inverted_Index"
-                    # self.curr.execute(f"SELECT * FROM {table_name} WHERE Word = '{word}'")
                     total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM {table_name} WHERE Word = '{word}'").fetchone()[0])[ids]
                 else:
-                    # self.curr.execute(f"SELECT * FROM other_Inverted_Index WHERE Word = '{word}'")
                     total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM other_Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
-                # ////////////////////////////////////////////
-                # ////////////////////////////////////////////
                 final_score_dict[ids] += (total_term / total_words) * word_idf_dict[word]
         # sort the final score dictionary descending
         sorted_final_score_dict = {k: v for k, v in sorted(final_score_dict.items(), key=lambda item: item[1], reverse=True)}

@@ -4,11 +4,11 @@
 # swdev02_work
 repo for keeping work of Software Developemt II
 
+## Project theme : Web Scraping and Search Engine
+
+
 
 Member : Me Myself & I
-
-
-JK, It's
 
 Aingthawan Khruakhlai    ID 6401012610042
 
