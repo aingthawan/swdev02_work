@@ -27,11 +27,12 @@ def word_frequency_dict(words_list):
 
 class raw_database:
     """class for getting the raw content from the database and remove"""
-
+    # To use this class, you need to already have a database with a table called rawMaterial
     def __init__(self, database):
         """initialize the database"""
         self.conn = sqlite3.connect(database)
         self.cur = self.conn.cursor()
+        
 
     def get_row(self):
         """get the row from the database"""
@@ -45,8 +46,13 @@ class raw_database:
 
     def delete_row(self, url):
         """delete the row from the database"""
-        self.cur.execute("DELETE FROM rawMaterial WHERE url = ?", (url,))
-        self.conn.commit()
+        # try if row exist
+        try:
+            self.cur.execute("DELETE FROM rawMaterial WHERE url = ?", (url,))
+            self.conn.commit()
+        # except if row does not exist
+        except:
+            pass
 
     def close(self):
         """close the connection"""

@@ -35,13 +35,13 @@ class pageScrapers:
         # self.proxies = self.read_proxies_from_file("project\src\proxy\proxy_valid.txt")
     
     # Dead method
-    def read_proxies_from_file(self, filename):
-        """Read proxies from a file and return as a list"""
-        proxies = []
-        with open(filename, "r") as f:
-            for line in f:
-                proxies.append(line.strip())
-        return proxies
+    # def read_proxies_from_file(self, filename):
+    #     """Read proxies from a file and return as a list"""
+    #     proxies = []
+    #     with open(filename, "r") as f:
+    #         for line in f:
+    #             proxies.append(line.strip())
+    #     return proxies
     
     def get_raw_html(self, url):
         """get raw html soup obj using a rotating proxy"""
@@ -77,9 +77,13 @@ class pageScrapers:
     def scrape_page(self, url):
         """Return a dictionary of url, all unrepeated backlinks and raw text"""
         raw_soup_html = self.get_raw_html(url).text
-        return {
-            "url" : url,
-            "backlinks" : self.scrape_all_urls(raw_soup_html),
-            "rawText" : self.scrape_raw_text(raw_soup_html)
-        }
+        # if not none
+        if raw_soup_html is not None:
+            return {
+                "url" : url,
+                "backlinks" : self.scrape_all_urls(raw_soup_html),
+                "rawText" : self.scrape_raw_text(raw_soup_html)
+            }
+        else:
+            return None
  
