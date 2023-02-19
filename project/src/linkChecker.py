@@ -56,18 +56,22 @@ class LinkCheckers:
 
     def get_domain(self, url):
         """Get domain name from url"""
-        Domain_name = ""
-        x = url.split("/")
-        if(x[0] == "https:" or x[0] == "http:"):
-            x = x[2].split(".")
-        else:
-            x = x[0].split(".")
-        if(len(x) == 2):
-            Domain_name = x[0]
-        else:
-            Domain_name = x[1] 
+        if len(url) > 0 and (url != None):
+            Domain_name = ""
+            x = url.split("/")
+            if(x[0] == "https:" or x[0] == "http:"):
+                x = x[2].split(".")
+            else:
+                x = x[0].split(".")
+            if(len(x) == 2):
+                Domain_name = x[0]
+            else:
+                Domain_name = x[1] 
 
-        return Domain_name
+            return Domain_name
+        else:
+            return ""
+        
 
     # def compareDomains(self, url1, url2):
     #     """Compare two url domain"""

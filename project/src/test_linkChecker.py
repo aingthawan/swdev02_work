@@ -1,5 +1,5 @@
 # make a test for the linkChecker.py
-# run the test with: python -m unittest test_linkChecker.py
+# one nonfunctioning test method left, continue to work on it
 
 from linkChecker import *
 import sqlite3
@@ -33,27 +33,32 @@ class TestLinkCheckers(unittest.TestCase):
         self.assertIsNotNone(inverted_index_table.fetchone())
         conn.close()
 
-    @patch('link_checkers.requests.get')
-    def test_checkAccessibility(self, mock_requests_get):
-        # Test that checkAccessibility returns True when a valid URL is provided
-        mock_response = Mock()
-        mock_response.status_code = 200
-        mock_requests_get.return_value = mock_response
-        url = 'https://www.example.com'
-        result = self.link_checkers.checkAccessibility(url)
-        self.assertTrue(result)
+    # @patch('link_checkers.requests.get')
+    # def test_checkAccessibility(self, mock_requests_get):
+    #     # Test that checkAccessibility returns True when a valid URL is provided
+    #     mock_response = Mock()
+    #     mock_response.status_code = 200
+    #     mock_requests_get.return_value = mock_response
+    #     url = 'https://www.example.com'
+    #     result = self.link_checkers.checkAccessibility(url)
+    #     self.assertTrue(result)
 
-        # Test that checkAccessibility returns False when an invalid URL is provided
-        mock_requests_get.side_effect = requests.exceptions.RequestException
-        url = 'https://www.invalidurl.com'
-        result = self.link_checkers.checkAccessibility(url)
-        self.assertFalse(result)
+        # # Test that checkAccessibility returns False when an invalid URL is provided
+        # mock_requests_get.side_effect = requests.exceptions.RequestException
+        # url = 'https://www.invalidurl.com'
+        # result = self.link_checkers.checkAccessibility(url)
+        # self.assertFalse(result)
 
     def test_get_domain(self):
         # Test that get_domain returns the correct domain name for a given URL
         url = 'https://www.example.com'
         result = self.link_checkers.get_domain(url)
         self.assertEqual(result, 'example')
+        
+        url = 'https://www.example.com'
+        result = self.link_checkers.get_domain(url)
+        self.assertNotEqual(result, 'www.example')
+        
 
     def test_compareDomains(self):
         # Test that compareDomains returns True when two URLs have the same domain

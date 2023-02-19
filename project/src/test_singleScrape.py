@@ -1,3 +1,7 @@
+# file for testing singleScrape.py
+# okay for now, working fine
+# date : Feb 19 ,2023
+
 import unittest
 from unittest.mock import patch, MagicMock
 from singleScrape import *
