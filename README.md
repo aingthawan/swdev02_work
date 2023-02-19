@@ -11,6 +11,7 @@ Repo for keeping work of Software Developemt II
 > * Indexing
 > * Ranking
 
+> ## Language : Python
 
 > # Member : Me Myself & I
 > ## Aingthawan Khruakhlai    
