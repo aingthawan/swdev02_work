@@ -60,6 +60,10 @@ class get_raw_content:
         except Exception as e:
             print(e)
             pass
+        
+    def close(self):
+        self.rk.close()
+        self.lc.close()
 
 
     # def crawl_debug(self, url, current_depth, limit_depth):

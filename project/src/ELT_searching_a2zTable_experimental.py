@@ -84,8 +84,13 @@ class invertedIndexSearch:
         temp = self.get_common_id(self.getInvertedIndexDict(cleaned_user_query))
         end_time = time.time()
         print("Inverted Index Search Time : ", end_time - start_time)
-        print("Total ", len(temp), " results found")
-        return temp
+        
+        if temp != None:
+            print("Total ", len(temp), " results found")
+            return temp
+        else:
+            print("No results found")
+            return None
     
     def TFScore(self, word, IDlist):
         """Return the TF score for each id in the id list to a term."""
