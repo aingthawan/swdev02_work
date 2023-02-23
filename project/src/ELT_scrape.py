@@ -94,17 +94,17 @@ class get_raw_content:
 if __name__ == "__main__":
 
     tinderURL = {
-        # "https://photographylife.com/reviews/fuji-x100f",
-        # "https://www.dpreview.com/reviews/sony-a7rv-review?utm_source=self-desktop&utm_medium=marquee&utm_campaign=traffic_source",
-        # "https://www.35mmc.com/02/02/2023/hedeco-lime-two-low-profile-shoe-mount-light-meter-review/",
-        # "https://petapixel.com/2023/02/03/canon-usa-settles-with-employees-affected-by-2020-ransomware-attack/",
-        # "https://www.35mmc.com/14/10/2021/pentax-iqzoom-928-review/",
-        # "https://www.photographyblog.com/reviews/om_system_om_5_review",
-        # "https://www.outdoorphotographer.com/on-location/featured-stories/",
-        # "https://www.peerspace.com/resources/category/photography/"
-        # "https://www.outdoorphotographer.com/on-location/travel/"
-        # "https://petapixel.com/topic/reviews/",
-        # "https://petapixel.com/2022/11/23/zhiyuns-fiveray-m40-pocket-light-and-f100-light-stick-are-super-bright/",
+        "https://photographylife.com/reviews/fuji-x100f",
+        "https://www.dpreview.com/reviews/sony-a7rv-review?utm_source=self-desktop&utm_medium=marquee&utm_campaign=traffic_source",
+        "https://www.35mmc.com/02/02/2023/hedeco-lime-two-low-profile-shoe-mount-light-meter-review/",
+        "https://petapixel.com/2023/02/03/canon-usa-settles-with-employees-affected-by-2020-ransomware-attack/",
+        "https://www.35mmc.com/14/10/2021/pentax-iqzoom-928-review/",
+        "https://www.photographyblog.com/reviews/om_system_om_5_review",
+        "https://www.outdoorphotographer.com/on-location/featured-stories/",
+        "https://www.peerspace.com/resources/category/photography/"
+        "https://www.outdoorphotographer.com/on-location/travel/"
+        "https://petapixel.com/topic/reviews/",
+        "https://petapixel.com/2022/11/23/zhiyuns-fiveray-m40-pocket-light-and-f100-light-stick-are-super-bright/",
         "https://petapixel.com/2023/02/16/haunting-footage-of-titanic-shipwreck-released-for-the-first-time/",
     }
 
