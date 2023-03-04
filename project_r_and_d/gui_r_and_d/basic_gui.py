@@ -1,6 +1,7 @@
 import sys
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget
-
+from ELT_searching import invertedIndexSearch
 
 class SearchWidget(QWidget):
     def __init__(self):
@@ -36,6 +37,8 @@ class SearchWidget(QWidget):
         left_layout.addWidget(self.search_button)
         left_layout.addWidget(self.output_area)
         
+        self.search_button.clicked.connect(self.search)
+        
         # Add stretch to push widgets to the top
         right_layout = QVBoxLayout()
         right_layout.addWidget(self.insert_label)
@@ -60,7 +63,7 @@ class SearchWidget(QWidget):
             }
             QLabel {
                 color: #FFFFFF;
-                font-size: 22px;
+                font-size: 22px;    
                 font-weight: bold;
             }
             QLineEdit#searchInput, QLineEdit#insertInput {
@@ -90,6 +93,28 @@ class SearchWidget(QWidget):
         """
         self.setStyleSheet(style_sheet)
 
+    def search(self):
+        """search function"""
+        query = self.searchLineEdit.text()
+        file_name = 'database_elt_main_backup.db'
+        database_file = 'project\database\\' + file_name
+        search = invertedIndexSearch(database_file)
+        cleaned_query = search.queryCleaner(query)
+        ids = search.invertedIndexSearch(cleaned_query)
+        scores = {}
+        for word in cleaned_query:
+            score = search.TFScore(word, ids)
+            idf = search.IDFScore([word])
+            for doc_id in score:
+                score[doc_id] *= idf[word]
+            scores.update(score)
+        ranked_ids = sorted(scores, key=scores.get, reverse=True)
+        links = search.Link_from_ID(ranked_ids[:10])
+        self.searchResultList.clear()
+        for link in links:
+            self.searchResultList.addItem(QtWidgets.QListWidgetItem(link[0]))
+        search.close()
+        
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -70,23 +70,13 @@ class invertedIndexSearch:
     
     def invertedIndexSearch(self, cleaned_user_query):
         """return a list of inverted index search web ID"""
-        # print("Searching Query : ", user_query)
-        # list_query = self.queryCleaner(user_query)
-        # print("Cleaned Query : ", list_query)
-        # temp_dict = self.getInvertedIndexDict(list_query)
-        # if temp_dict != None:
-        #     print("Results : ")
-        #     return self.get_common_id(temp_dict)
-        # else:
-        #     # print("No result found")
-        #     return None
 
         # get inverted index time
         start_time = time.time()
         temp = self.get_common_id(self.getInvertedIndexDict(cleaned_user_query))
         end_time = time.time()
         print("Inverted Index Search Time : ", end_time - start_time)
-        print("Total ", len(temp), " results found")
+        # print("Total ", len(temp), " results found")
         return temp
     
     def TFScore(self, word, IDlist):
@@ -119,27 +109,6 @@ class invertedIndexSearch:
         # print("IDF Score Time : ", end_time - start_time)
         return score_temp
 
-    # Version 1
-    # def TFIDFRank(self, word_list, IDlist):
-    #     """return the ranked ID list from the TF-IDF score"""
-    #     # time for TF-IDF
-    #     start_time = time.time()
-    #     # calculate the IDF score
-    #     idf_dict = self.IDFScore(word_list)
-    #     tf_dict = {}
-    #     for word in word_list:
-    #         tf_dict[word] = self.TFScore(word, IDlist)
-    #     # calculate the TF-IDF score
-    #     final_score_dict = {}
-    #     for ids in IDlist:
-    #         final_score_dict[ids] = 0
-    #         for word in word_list:
-    #             final_score_dict[ids] += tf_dict[word][ids] * idf_dict[word]
-    #     # sort the final score dictionary descending
-    #     sorted_final_score_dict = {k: v for k, v in sorted(final_score_dict.items(), key=lambda item: item[1], reverse=True)}
-    #     end_time = time.time()
-    #     print("TF-IDF Ranking Time : ", end_time - start_time)
-    #     return sorted_final_score_dict.keys()
 
     # Version 2
     def TFIDFRank(self, word_list, IDlist):
@@ -169,6 +138,20 @@ class invertedIndexSearch:
         print(" New TF-IDF Ranking Time : ", end_time - start_time)
         return sorted_final_score_dict.keys()
 
+    def full_search(self, user_query):
+        """return a list of url from a user query"""
+        cleaned_query = self.queryCleaner(user_query)
+        if cleaned_query != None:
+            id_list = self.invertedIndexSearch(cleaned_query)
+            # get a list of ranked url
+            if id_list != None:
+                return self.Link_from_ID(id_list)
+            else:
+                return None
+            
+        else:
+            return None
+        
 
         
 
@@ -177,7 +160,7 @@ if __name__ == "__main__":
 
     os.system('cls')
     print("\nWelcome to the Search Engine\nSetting up . . .\n\n")
-    file_name = 'database_elt_main.db'
+    file_name = 'database_elt_main_backup.db'
     database_file = 'project\database\\' + file_name
     # make a loop for searching until user want to exit
     # using try and except for error handling keyboard interrupt to exit the program
@@ -188,24 +171,30 @@ if __name__ == "__main__":
         while True:
             user_query = input("\n\nEnter your search query : ")
             os.system('cls')
-            clean_query = iis.queryCleaner(user_query)
-            print("Your query : ", user_query)
-            print("cleaned query : ", clean_query)
-            searched_id_list = iis.invertedIndexSearch(clean_query)
-            if searched_id_list != None:  
-                ranked_result = iis.TFIDFRank(clean_query, searched_id_list)
-                print("\nResults : ")
-                final_result = iis.Link_from_ID(ranked_result)
-                # final_result = iis.Link_from_ID(searched_id_list)
+            # clean_query = iis.queryCleaner(user_query)
+            # print("Your query : ", user_query)
+            # print("cleaned query : ", clean_query)
+            # searched_id_list = iis.invertedIndexSearch(clean_query)
+            # if searched_id_list != None:  
+            #     ranked_result = iis.TFIDFRank(clean_query, searched_id_list)
+            #     print("\nResults : ")
+            #     final_result = iis.Link_from_ID(ranked_result)
+            #     # final_result = iis.Link_from_ID(searched_id_list)
 
-                # print top 10 result
-                for result in final_result[:9]:
-                    print(result[0])
+            #     # print top 10 result
+            #     for result in final_result[:9]:
+            #         print(result[0])
                 
-                # print(searched_id_list)
+            #     # print(searched_id_list)
                 
-            else:
+            # else:
+            #     print("No result found")
+            result_list = iis.full_search(user_query)
+            if result_list == None:
                 print("No result found")
+            else:
+                for result in result_list[:9]:
+                    print(result[0])
         
 
     except KeyboardInterrupt:
