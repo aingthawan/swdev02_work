@@ -192,6 +192,9 @@ class dataPipelines:
                 self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq = Document_Freq + 1, Inverted_Dict = '{inverted_dict}' WHERE Word = '{word}'")
             else:
                 self.cursor.execute(f"INSERT INTO Inverted_Index (Word, Document_Freq, Inverted_Dict) VALUES ('{word}', 1, '{{{web_id}:{count}}}')")
+            # sort column by Word
+            # self.cursor.execute("SELECT * FROM Inverted_Index ORDER BY Word ASC")
+            # self.conn.commit()
         self.conn.commit()
 
     

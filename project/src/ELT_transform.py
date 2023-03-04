@@ -140,8 +140,8 @@ class main_database:
 
 def data_processing():
     
-    directory = "project\database\\"
-    raw_dir = directory + "database_elt_raw_backup4.db"
+    directory = "project\database\\for_dev\\"
+    raw_dir = directory + "database_elt_raw.db"
     main_dir = directory + "database_elt_main.db"
     
     rawd = raw_database(raw_dir)
@@ -172,7 +172,7 @@ def data_processing():
         rawd.delete_row(url)
         print("Data removed. Continuing...")
         data_processing()
-    # if keyboard interrupt, close the connection
+    # if keyboard interrupt, close the connection 
     except KeyboardInterrupt:
         print("closing connection")
         rawd.close()

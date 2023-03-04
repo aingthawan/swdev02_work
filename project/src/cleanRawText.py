@@ -67,8 +67,6 @@ class TextCleaners:
         """Clean text by normalizing, removing stopwords, and lemmatizing"""
         # For raw text
         try: 
-            from bs4 import BeautifulSoup
-
             soup = BeautifulSoup(raw_text, 'html.parser')
             raw_text = ""
 

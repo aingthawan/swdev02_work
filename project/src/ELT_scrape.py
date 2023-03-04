@@ -1,7 +1,7 @@
 from rawKeeper_ELT import *
 from singleScrape import *
 from linkChecker import *
-import tqdm
+
 
 
 class get_raw_content:
@@ -94,27 +94,26 @@ class get_raw_content:
 if __name__ == "__main__":
 
     tinderURL = {
-        "https://photographylife.com/reviews/fuji-x100f",
-        "https://www.dpreview.com/reviews/sony-a7rv-review?utm_source=self-desktop&utm_medium=marquee&utm_campaign=traffic_source",
-        "https://www.35mmc.com/02/02/2023/hedeco-lime-two-low-profile-shoe-mount-light-meter-review/",
-        "https://petapixel.com/2023/02/03/canon-usa-settles-with-employees-affected-by-2020-ransomware-attack/",
-        "https://www.35mmc.com/14/10/2021/pentax-iqzoom-928-review/",
-        "https://www.photographyblog.com/reviews/om_system_om_5_review",
-        "https://www.outdoorphotographer.com/on-location/featured-stories/",
-        "https://www.peerspace.com/resources/category/photography/"
-        "https://www.outdoorphotographer.com/on-location/travel/"
-        "https://petapixel.com/topic/reviews/",
-        "https://petapixel.com/2022/11/23/zhiyuns-fiveray-m40-pocket-light-and-f100-light-stick-are-super-bright/",
-        "https://petapixel.com/2023/02/16/haunting-footage-of-titanic-shipwreck-released-for-the-first-time/",
+        "https://photographylife.com/integrating-jpegmini-pro-to-lightroom-workflow",
+        "https://placesjournal.org/article/orphan-wells-oil-infrastructure-in-louisiana/",
+        "https://expertphotography.com/best-retro-camera/",
+        "https://www.newscientist.com/article/mg25634130-200-a-gift-from-nature-geothermal-energy-in-tuscanys-valle-del-diavolo/",
+        "https://petapixel.com/2023/03/03/apples-29-year-old-landmark-quicktake-100-camera-falters-in-2023/",
+        "https://www.wired.com/gallery/best-photo-video-accessories-for-iphone-android/",
+        "https://www.dpreview.com/news/7860893940/film-friday-meet-luminar-100-a-new-35mm-color-film-stock-made-kodak-aerocolor-iv-aerial-film",
+        "https://fstoppers.com/film/most-overrated-and-underrated-film-cameras-2021-563868",
+        "https://iso.500px.com/11-tips-photographers-shoot-film-analog/",
+        "https://www.studiobinder.com/blog/how-to-shoot-film-photography/",
+        "https://iso.500px.com/how-to-increase-your-prices-as-a-freelance-photographer/"
     }
 
-    rawfilename = "database_elt_raw_backup4.db"
-    mainfilename = "database_elt_main2.db"
-    db_path = "project\database\\"
+    rawfilename = "database_elt_raw.db"
+    mainfilename = "database_elt_main.db"
+    db_path = "project\database\\for_dev\\"
 
     grc = get_raw_content(db_path+rawfilename, db_path+mainfilename)
     start_depth = 1
-    limit_depth = 4
+    limit_depth = 1
 
     for link in (tinderURL):
     # for link in tinderURL:
