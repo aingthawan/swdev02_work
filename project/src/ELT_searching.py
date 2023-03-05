@@ -156,48 +156,48 @@ class invertedIndexSearch:
         
 
 # main
-if __name__ == "__main__":
+# if __name__ == "__main__":
 
-    os.system('cls')
-    print("\nWelcome to the Search Engine\nSetting up . . .\n\n")
-    file_name = 'database_elt_main_backup.db'
-    database_file = 'project\database\\' + file_name
-    # make a loop for searching until user want to exit
-    # using try and except for error handling keyboard interrupt to exit the program
-    iis = invertedIndexSearch(database_file)
-    os.system('cls')
+#     os.system('cls')
+#     print("\nWelcome to the Search Engine\nSetting up . . .\n\n")
+#     file_name = 'database_elt_main_backup.db'
+#     database_file = 'project\database\\' + file_name
+#     # make a loop for searching until user want to exit
+#     # using try and except for error handling keyboard interrupt to exit the program
+#     iis = invertedIndexSearch(database_file)
+#     os.system('cls')
 
-    try:
-        while True:
-            user_query = input("\n\nEnter your search query : ")
-            os.system('cls')
-            # clean_query = iis.queryCleaner(user_query)
-            # print("Your query : ", user_query)
-            # print("cleaned query : ", clean_query)
-            # searched_id_list = iis.invertedIndexSearch(clean_query)
-            # if searched_id_list != None:  
-            #     ranked_result = iis.TFIDFRank(clean_query, searched_id_list)
-            #     print("\nResults : ")
-            #     final_result = iis.Link_from_ID(ranked_result)
-            #     # final_result = iis.Link_from_ID(searched_id_list)
+#     try:
+#         while True:
+#             user_query = input("\n\nEnter your search query : ")
+#             os.system('cls')
+#             # clean_query = iis.queryCleaner(user_query)
+#             # print("Your query : ", user_query)
+#             # print("cleaned query : ", clean_query)
+#             # searched_id_list = iis.invertedIndexSearch(clean_query)
+#             # if searched_id_list != None:  
+#             #     ranked_result = iis.TFIDFRank(clean_query, searched_id_list)
+#             #     print("\nResults : ")
+#             #     final_result = iis.Link_from_ID(ranked_result)
+#             #     # final_result = iis.Link_from_ID(searched_id_list)
 
-            #     # print top 10 result
-            #     for result in final_result[:9]:
-            #         print(result[0])
+#             #     # print top 10 result
+#             #     for result in final_result[:9]:
+#             #         print(result[0])
                 
-            #     # print(searched_id_list)
+#             #     # print(searched_id_list)
                 
-            # else:
-            #     print("No result found")
-            result_list = iis.full_search(user_query)
-            if result_list == None:
-                print("No result found")
-            else:
-                for result in result_list[:9]:
-                    print(result[0])
+#             # else:
+#             #     print("No result found")
+#             result_list = iis.full_search(user_query)
+#             if result_list == None:
+#                 print("No result found")
+#             else:
+#                 for result in result_list[:9]:
+#                     print(result[0])
         
 
-    except KeyboardInterrupt:
-        os.system('cls')
-        iis.close()
-        print("\n\n\t~ Quit program ~\n\n")
+#     except KeyboardInterrupt:
+#         os.system('cls')
+#         iis.close()
+#         print("\n\n\t~ Quit program ~\n\n")

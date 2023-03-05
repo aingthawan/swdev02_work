@@ -14,13 +14,14 @@ class SearchWidget(QWidget):
         self.search_label = QLabel("Search:")
         self.search_input = QLineEdit()
         self.search_button = QPushButton("Start Search")
-        self.output_area = QTextEdit()
-        self.insert_label = QLabel("Insert:")
+        self.output_area = QtWidgets.QListWidget()
+        self.insert_label = QLabel("Update:")
         self.insert_input = QLineEdit()
         # set box size
         self.insert_input.setFixedWidth(200)
         self.insert_button = QPushButton("Insert")
         self.delete_button = QPushButton("Delete")
+        self.result_len = QLabel("")
 
         # Set widget properties
         self.search_input.setObjectName("searchInput")
@@ -37,20 +38,21 @@ class SearchWidget(QWidget):
         left_layout.addWidget(self.search_button)
         left_layout.addWidget(self.output_area)
         
-        self.search_button.clicked.connect(self.search)
-        
         # Add stretch to push widgets to the top
         right_layout = QVBoxLayout()
         right_layout.addWidget(self.insert_label)
         right_layout.addWidget(self.insert_input)
         right_layout.addWidget(self.insert_button)
         right_layout.addWidget(self.delete_button)
+        # add stretch to push widgets to the top
         right_layout.addStretch()
 
         # Create main layout
         main_layout = QHBoxLayout()
         main_layout.addLayout(left_layout)
         main_layout.addLayout(right_layout)
+        
+        self.search_button.clicked.connect(self.search)
 
         # Set the layout for the widget
         self.setLayout(main_layout)
@@ -59,7 +61,7 @@ class SearchWidget(QWidget):
         # Maybe make a separate file for this VVVVVVVVVVVVV
         style_sheet = """
             QWidget {
-                background-color: #333333;
+                background-color: #2f362d;
             }
             QLabel {
                 color: #FFFFFF;
@@ -71,23 +73,26 @@ class SearchWidget(QWidget):
                 border-radius: 4px;
                 padding: 6px;
                 font-size: 16px;
-                background-color: #222222;
+                background-color: #1e211d;
                 color: #FFFFFF;
             }
             QPushButton#searchButton, QPushButton#insertButton, QPushButton#deleteButton {
                 background-color: #fcba03;
+                border: 2px solid #a37903;
+                border-radius: 4px;
+                padding: 6px;
                 color: #0d0d0d;
                 font-size: 16px;
                 font-weight: bold;
                 padding: 6px 12px;
                 border-radius: 4px;
             }
-            QTextEdit#outputArea {
+            QListWidget#outputArea {
                 border: 2px solid #CCCCCC;
                 border-radius: 4px;
                 padding: 6px;
-                font-size: 16px;
-                background-color: #222222;
+                font-size: 12px;
+                background-color: #1e211d;
                 color: #FFFFFF;
             }
         """
@@ -95,25 +100,27 @@ class SearchWidget(QWidget):
 
     def search(self):
         """search function"""
-        query = self.searchLineEdit.text()
+        self.output_area.clear()
+        self.output_area.addItem(QtWidgets.QListWidgetItem("Searching . . ."))
+        
+        # get the query from the search line edit
+        query = self.search_input.text()
+        # create the inverted index search object
         file_name = 'database_elt_main_backup.db'
         database_file = 'project\database\\' + file_name
         search = invertedIndexSearch(database_file)
-        cleaned_query = search.queryCleaner(query)
-        ids = search.invertedIndexSearch(cleaned_query)
-        scores = {}
-        for word in cleaned_query:
-            score = search.TFScore(word, ids)
-            idf = search.IDFScore([word])
-            for doc_id in score:
-                score[doc_id] *= idf[word]
-            scores.update(score)
-        ranked_ids = sorted(scores, key=scores.get, reverse=True)
-        links = search.Link_from_ID(ranked_ids[:10])
-        self.searchResultList.clear()
-        for link in links:
-            self.searchResultList.addItem(QtWidgets.QListWidgetItem(link[0]))
+        # get the list of url from the query
+        links = search.full_search(query)
         search.close()
+        # clear the search previous result list
+        self.output_area.clear()
+        # check if there is any result
+        if links != None:
+            for link in links:
+                self.output_area.addItem(QtWidgets.QListWidgetItem(link[0]))
+        else:
+            self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
+
         
 
 if __name__ == "__main__":
