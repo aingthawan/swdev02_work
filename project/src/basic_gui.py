@@ -6,25 +6,35 @@ from ELT_transform import main_database
 
 class SearchWidget(QWidget):
     def __init__(self):
-        file_name = 'database_elt_main_backup.db'
+        file_name = 'database_elt_main_backup_1.db'
         self.database_file = 'project\database\\' + file_name
         
         super().__init__()
 
         self.setWindowTitle("Search GUI Basic v1.0")
-        self.resize(800, 600)
+        self.resize(400, 600)
         
         # Create widgets
         self.search_label = QLabel("Search:")
         self.search_input = QLineEdit()
+        self.search_input.setFixedWidth(400) # set box size
+        
         self.search_button = QPushButton("Start Search")
+        self.search_button.setFixedWidth(400) # set box size
+        
         self.output_area = QtWidgets.QListWidget()
+        self.output_area.setFixedWidth(400) # set box size
+        
         self.insert_label = QLabel("Update:")
         self.insert_input = QLineEdit() # Update input box
         self.insert_input.setFixedWidth(200) # set box size
         self.insert_button = QPushButton("Insert")
         self.delete_button = QPushButton("Delete")
         self.result_len = QLabel("")
+        self.log_label = QLabel("Log:")
+        self.log_area = QtWidgets.QListWidget()
+        self.log_area.setFixedHeight(100) # set box size
+        self.log_area.setFixedWidth(200)
 
         # Set widget properties
         self.search_input.setObjectName("searchInput")
@@ -33,6 +43,7 @@ class SearchWidget(QWidget):
         self.insert_input.setObjectName("insertInput")
         self.insert_button.setObjectName("insertButton")
         self.delete_button.setObjectName("deleteButton")
+        self.log_area.setObjectName("logArea")
 
         # Create layouts
         left_layout = QVBoxLayout()
@@ -47,6 +58,10 @@ class SearchWidget(QWidget):
         right_layout.addWidget(self.insert_input)
         right_layout.addWidget(self.insert_button)
         right_layout.addWidget(self.delete_button)
+        # add log label
+        right_layout.addWidget(self.log_label)
+        # add log area
+        right_layout.addWidget(self.log_area)
         # add stretch to push widgets to the top
         right_layout.addStretch()
 
@@ -57,6 +72,7 @@ class SearchWidget(QWidget):
         
         self.search_button.clicked.connect(self.search)
         self.insert_button.clicked.connect(self.insert)
+        self.delete_button.clicked.connect(self.remove)
 
         # Set the layout for the widget
         self.setLayout(main_layout)
@@ -91,7 +107,7 @@ class SearchWidget(QWidget):
                 padding: 6px 12px;
                 border-radius: 4px;
             }
-            QListWidget#outputArea {
+            QListWidget#outputArea, #logArea{
                 border: 2px solid #CCCCCC;
                 border-radius: 4px;
                 padding: 6px;
@@ -104,37 +120,64 @@ class SearchWidget(QWidget):
 
     def search(self):
         """search function"""
-        self.output_area.clear()
-        self.output_area.addItem(QtWidgets.QListWidgetItem("Searching . . ."))
         
         # get the query from the search line edit
         query = self.search_input.text()
-        # create the inverted index search object
-        search = invertedIndexSearch(self.database_file)
-        # get the list of url from the query
-        links = search.full_search(query)
-        search.close()
-        # clear the search previous result list
-        self.output_area.clear()
-        # check if there is any result
-        if links != None:
-            for link in links:
-                self.output_area.addItem(QtWidgets.QListWidgetItem(link[0]))
-        else:
-            self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
+        # check if input is not empty
+        if query == "":
+            self.log_area.addItem(QtWidgets.QListWidgetItem("Please enter a query"))
+            return
+        else:    
+            # create the inverted index search object
+            search = invertedIndexSearch(self.database_file)
+            # get the list of url from the query
+            links = search.full_search(query)
+            search.close()
+            # clear the search previous result list
+            self.output_area.clear()
+            # check if there is any result
+            if links != None:
+                for link in links:
+                    self.output_area.addItem(QtWidgets.QListWidgetItem(link[0]))
+                # display log in the log area
+                self.log_area.addItem(QtWidgets.QListWidgetItem("Search completed"))
+            else:
+                self.log_area.addItem(QtWidgets.QListWidgetItem("No result found"))
             
     def insert(self):
         """insert function"""
         # get the url from the insert line edit
         input_url = self.insert_input.text()
-        # create the data pipeline object
-        tf = main_database(self.database_file)
-        tf.direct_update_link(input_url)
-        tf.close()
+        # check if input is not empty
+        if input_url == "":
+            self.log_area.addItem(QtWidgets.QListWidgetItem("Please enter a url"))
+            return
+        else:
+            # create the data pipeline object
+            tf = main_database(self.database_file)
+            tf.direct_update_link(input_url)
+            tf.close()
+            # clear the insert line edit
+            self.insert_input.clear()
+            # display log in the log area
+            self.log_area.addItem(QtWidgets.QListWidgetItem("Insert completed"))
         
-        
-        
-
+    def remove(self):
+        """remove function"""
+        # get the url from the insert line edit
+        input_url = self.insert_input.text()
+        # check if input is not empty
+        if input_url == "":
+            self.log_area.addItem(QtWidgets.QListWidgetItem("Please enter a url"))
+            return
+        else:
+            # remove all the data related to the url
+            tf = main_database(self.database_file)
+            tf.removeData(input_url)
+            # clear the insert line edit
+            self.insert_input.clear()
+            # display log in the log area
+            self.log_area.addItem(QtWidgets.QListWidgetItem("Remove completed"))
         
 
 if __name__ == "__main__":

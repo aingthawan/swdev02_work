@@ -148,7 +148,7 @@ class dataPipelines:
             # sort column by Word
             # self.cursor.execute("SELECT * FROM Inverted_Index ORDER BY Word ASC")
             # self.conn.commit()
-        self.conn.commit()
+        self.conn.commit() 
         
     # method for terminate the connection
     def close(self):
