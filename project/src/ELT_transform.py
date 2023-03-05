@@ -102,6 +102,12 @@ class main_database:
         self.dp.updateWebData(new_id, url, clean_content_dict, all_backlink_domain_list)
         # update invertedIndex
         self.dp.updateInvertedIndexing(new_id, clean_content)
+        
+    def direct_update_link(self, url):
+        """update the link into the database, without raw content, using method above"""
+        # get raw content of the url
+        page_content = self.ps.get_raw_html(url)
+        self.updateLink(url, page_content)
 
 
     def removeData(self, url):

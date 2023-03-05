@@ -36,52 +36,6 @@ class dataPipelines:
             self.cursor.execute(f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'")
             self.conn.commit()
     
-    # def uncountRef(self, domain_name_list):
-    #     """For uncount referenced domain"""
-    #     for domain in domain_name_list:
-    #         # get ref_count of domain
-    #         self.cursor.execute(f"SELECT Ref_Count FROM Reference_Domain WHERE Domain_Name = '{domain}'")
-    #         result = self.cursor.fetchone()
-    #         # check if domain exist in database
-    #         print("result: ", result)
-    #         if result:
-    #             print("uncountRef: ", domain, "ref_count: ", result[0])
-    #             ref_count = result[0]
-    #             if ref_count > 0:
-    #             # if  ref_count more than 0
-    #                 self.cursor.execute(f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'")
-    #                 self.conn.commit()
-    #             else:
-    #                 # the count can't be less than 0
-    #                 print(f"Ref_Count for {domain} is already 0")
-    #         else:
-    #             # not found in database
-    #             print(f"{domain} not found in database")
-
-
-            
-#     def removeInvertedIndex(self, web_id, words):
-#         """Remove id from indexing and reduce docsfreq"""
-
-#         for word in words:
-#             # Retrieve the current values of Document_Freq and Inverted_Dict
-#             self.cursor.execute(f"SELECT Document_Freq, Inverted_Dict FROM Inverted_Index WHERE Word=?", (word,))
-#             result = self.cursor.fetchone()
-#             doc_freq, inverted_dict = result[0], result[1]
-
-#             # Decrement the Document_Freq value
-#             doc_freq -= 1
-
-#             # Convert the Inverted_Dict string to a dictionary and remove the entry for the Web_ID
-#             inverted_dict = eval(inverted_dict)
-#             inverted_dict.pop(str(web_id), None)
-
-#             # Update the values of Document_Freq and Inverted_Dict for the word
-#             self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq=?, Inverted_Dict=? WHERE Word=?", (doc_freq, str(inverted_dict), word))
-
-#         # Commit the changes to the database
-#         self.conn.commit()
-    
     def removeInvertedIndex(self, web_id, words):
         """Remove id from indexing and reduce docsfreq"""
         for word in words:
@@ -98,7 +52,6 @@ class dataPipelines:
         self.conn.commit()
 
     # ==============================================================
-
 
     def getUniqueID(self):
         """function for unique unused ID for a website"""
@@ -196,22 +149,6 @@ class dataPipelines:
             # self.cursor.execute("SELECT * FROM Inverted_Index ORDER BY Word ASC")
             # self.conn.commit()
         self.conn.commit()
-
-    
-    # def updateInvertedIndexing(self, web_id, word_list):
-    #     word_count = {}
-    #     for word in word_list:
-    #         word_count[word] = word_count.get(word, 0) + 1
-    #     for word, count in word_count.items():
-    #         self.cursor.execute(f"SELECT Word FROM Inverted_Index WHERE Word = '{word}'")
-    #         result = self.cursor.fetchone()
-    #         if result:
-    #             self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq = Document_Freq + 1, Inverted_Dict = Inverted_Dict || '{','.join([f'{{{web_id}:{count}}}' for web_id, count in word_count.items()])}' WHERE Word = '{word}'")
-    #         else:
-    #             self.cursor.execute(f"INSERT INTO Inverted_Index (Word, Document_Freq, Inverted_Dict) VALUES ('{word}', 1, '{','.join([f'{{{web_id}:{count}}}' for web_id, count in word_count.items()])}')")
-    #     self.conn.commit()
-
-
         
     # method for terminate the connection
     def close(self):

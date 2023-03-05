@@ -2,9 +2,13 @@ import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget
 from ELT_searching import invertedIndexSearch
+from ELT_transform import main_database
 
 class SearchWidget(QWidget):
     def __init__(self):
+        file_name = 'database_elt_main_backup.db'
+        self.database_file = 'project\database\\' + file_name
+        
         super().__init__()
 
         self.setWindowTitle("Search GUI Basic v1.0")
@@ -16,9 +20,8 @@ class SearchWidget(QWidget):
         self.search_button = QPushButton("Start Search")
         self.output_area = QtWidgets.QListWidget()
         self.insert_label = QLabel("Update:")
-        self.insert_input = QLineEdit()
-        # set box size
-        self.insert_input.setFixedWidth(200)
+        self.insert_input = QLineEdit() # Update input box
+        self.insert_input.setFixedWidth(200) # set box size
         self.insert_button = QPushButton("Insert")
         self.delete_button = QPushButton("Delete")
         self.result_len = QLabel("")
@@ -53,6 +56,7 @@ class SearchWidget(QWidget):
         main_layout.addLayout(right_layout)
         
         self.search_button.clicked.connect(self.search)
+        self.insert_button.clicked.connect(self.insert)
 
         # Set the layout for the widget
         self.setLayout(main_layout)
@@ -106,9 +110,7 @@ class SearchWidget(QWidget):
         # get the query from the search line edit
         query = self.search_input.text()
         # create the inverted index search object
-        file_name = 'database_elt_main_backup.db'
-        database_file = 'project\database\\' + file_name
-        search = invertedIndexSearch(database_file)
+        search = invertedIndexSearch(self.database_file)
         # get the list of url from the query
         links = search.full_search(query)
         search.close()
@@ -120,6 +122,18 @@ class SearchWidget(QWidget):
                 self.output_area.addItem(QtWidgets.QListWidgetItem(link[0]))
         else:
             self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
+            
+    def insert(self):
+        """insert function"""
+        # get the url from the insert line edit
+        input_url = self.insert_input.text()
+        # create the data pipeline object
+        tf = main_database(self.database_file)
+        tf.direct_update_link(input_url)
+        tf.close()
+        
+        
+        
 
         
 
