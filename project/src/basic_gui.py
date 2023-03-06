@@ -14,16 +14,18 @@ class SearchWidget(QWidget):
         self.setWindowTitle("Search GUI Basic v1.0")
         self.resize(400, 600)
         
+        
+        left_widget_width = 600
         # Create widgets
         self.search_label = QLabel("Search:")
         self.search_input = QLineEdit()
-        self.search_input.setFixedWidth(400) # set box size
+        self.search_input.setFixedWidth(left_widget_width) # set box size
         
         self.search_button = QPushButton("Start Search")
-        self.search_button.setFixedWidth(400) # set box size
+        self.search_button.setFixedWidth(left_widget_width) # set box size
         
         self.output_area = QtWidgets.QListWidget()
-        self.output_area.setFixedWidth(400) # set box size
+        self.output_area.setFixedWidth(left_widget_width) # set box size
         
         self.insert_label = QLabel("Update:")
         self.insert_input = QLineEdit() # Update input box
@@ -140,9 +142,10 @@ class SearchWidget(QWidget):
                 for link in links:
                     self.output_area.addItem(QtWidgets.QListWidgetItem(link[0]))
                 # display log in the log area
-                self.log_area.addItem(QtWidgets.QListWidgetItem("Search completed"))
+                self.log_area.addItem(QtWidgets.QListWidgetItem("Search completed : " + query))
             else:
                 self.log_area.addItem(QtWidgets.QListWidgetItem("No result found"))
+                self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
             
     def insert(self):
         """insert function"""
@@ -153,14 +156,20 @@ class SearchWidget(QWidget):
             self.log_area.addItem(QtWidgets.QListWidgetItem("Please enter a url"))
             return
         else:
-            # create the data pipeline object
-            tf = main_database(self.database_file)
-            tf.direct_update_link(input_url)
-            tf.close()
-            # clear the insert line edit
-            self.insert_input.clear()
-            # display log in the log area
-            self.log_area.addItem(QtWidgets.QListWidgetItem("Insert completed"))
+            try:
+                # create the data pipeline object
+                tf = main_database(self.database_file)
+                tf.direct_update_link(input_url)
+                tf.close()
+                # clear the insert line edit
+                self.insert_input.clear()
+                # display log in the log area
+                self.log_area.addItem(QtWidgets.QListWidgetItem("Insert completed"))
+                return
+            except Exception as e:
+                self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to insert"))
+                self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
+                return
         
     def remove(self):
         """remove function"""
@@ -171,13 +180,20 @@ class SearchWidget(QWidget):
             self.log_area.addItem(QtWidgets.QListWidgetItem("Please enter a url"))
             return
         else:
-            # remove all the data related to the url
-            tf = main_database(self.database_file)
-            tf.removeData(input_url)
-            # clear the insert line edit
-            self.insert_input.clear()
-            # display log in the log area
-            self.log_area.addItem(QtWidgets.QListWidgetItem("Remove completed"))
+            try:
+                # remove all the data related to the url
+                tf = main_database(self.database_file)
+                tf.removeData(input_url)
+                # clear the insert line edit
+                self.insert_input.clear() 
+                # display log in the log area
+                self.log_area.addItem(QtWidgets.QListWidgetItem("Remove completed"))
+                return
+            # except and keep error message then display it in the log area
+            except Exception as e:
+                self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to remove"))
+                self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
+                return
         
 
 if __name__ == "__main__":

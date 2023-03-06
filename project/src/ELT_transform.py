@@ -34,7 +34,7 @@ class raw_database:
         self.cur = self.conn.cursor()
         
 
-    def get_row(self):
+    def get_row(self): 
         """get the row from the database"""
         self.cur.execute("SELECT * FROM rawMaterial LIMIT 1")
         row = self.cur.fetchone()
