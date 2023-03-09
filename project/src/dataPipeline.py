@@ -28,6 +28,8 @@ class dataPipelines:
         self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
         # Create table for each word, number of document that contain that word and dictionary of sorted key that are id of url and number of that word found on that link
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
+        
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS Search_Cache (Query_List TEXT, ID_List TEXT)""")
 
     def uncountRef(self, domain_name_list):
         """For uncount referenced domain"""
@@ -123,7 +125,7 @@ class dataPipelines:
     def updateWebData(self, web_id, url, all_words, ref_to):
         """Insert new url data into web_Data"""
         words = list(all_words.keys())
-        all_words = " , ".join(words)
+        all_words = " , ".join(words) 
         ref_to = " , ".join(ref_to)
         
         self.cursor.execute(f"INSERT INTO web_Data (Web_ID, URL, All_Word, Ref_To) VALUES (?, ?, ?, ?)", (web_id, url, all_words, ref_to))
@@ -148,7 +150,20 @@ class dataPipelines:
             # sort column by Word
             # self.cursor.execute("SELECT * FROM Inverted_Index ORDER BY Word ASC")
             # self.conn.commit()
-        self.conn.commit() 
+        self.conn.commit()         
+        
+    def removeTermInCache(self, term_list):
+        """Check if term in the list is in cache, remove that cache row"""
+        self.cursor.execute("SELECT Query_List FROM Search_Cache")
+        search_cache = self.cursor.fetchall()
+        # check all row in column Query_List if contain any term in term_list, 
+        # if yes, remove that row
+        for row in search_cache:
+            for term in term_list:
+                if term in row[0]:
+                    self.cursor.execute("DELETE FROM Search_Cache WHERE Query_List=?", (row[0],))
+                    self.conn.commit() 
+        print("Cache is updated (Removed related term in cache)")        
         
     # method for terminate the connection
     def close(self):

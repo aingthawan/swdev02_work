@@ -102,6 +102,8 @@ class main_database:
         self.dp.updateWebData(new_id, url, clean_content_dict, all_backlink_domain_list)
         # update invertedIndex
         self.dp.updateInvertedIndexing(new_id, clean_content)
+        # remove cache
+        self.dp.removeTermInCache(list(clean_content_dict.keys()))
         
     def direct_update_link(self, url):
         """update the link into the database, without raw content, using method above"""
@@ -116,6 +118,8 @@ class main_database:
         self.dp.removeWebData(temp_datarow['URL'])
         self.dp.uncountRef(temp_datarow['Ref_To'])
         self.dp.removeInvertedIndex(temp_datarow['Web_ID'], temp_datarow['All_Word'])
+        # remove cache
+        self.dp.removeTermInCache(temp_datarow['All_Word'])
     
     def removeDataByWebID(self, web_id):
         """remove the data from the database"""

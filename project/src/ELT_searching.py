@@ -24,7 +24,7 @@ class invertedIndexSearch:
             Query_List TEXT,
             ID_List TEXT
         )""")
-        self.conn.commit()
+        # self.conn.commit()
 
     def close(self):
         """close the database connection"""
@@ -79,7 +79,6 @@ class invertedIndexSearch:
     
     def invertedIndexSearch(self, cleaned_user_query):
         """return a list of inverted index search web ID"""
-
         # get inverted index time
         start_time = time.time()
         temp = self.get_common_id(self.getInvertedIndexDict(cleaned_user_query))
