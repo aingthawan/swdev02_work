@@ -6,14 +6,14 @@ from ELT_transform import main_database
 
 class SearchWidget(QWidget):
     def __init__(self):
-        file_name = 'database_elt_main_backup_1.db'
+        file_name = 'database_elt_main.db'
         self.database_file = 'project\database\\' + file_name
+        # self.database_file = 'project\database\\for_dev\\' + file_name
         
         super().__init__()
 
         self.setWindowTitle("Search GUI Basic v1.0")
         self.resize(400, 600)
-        
         
         left_widget_width = 600
         # Create widgets

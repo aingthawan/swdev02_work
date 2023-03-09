@@ -99,17 +99,17 @@ if __name__ == "__main__":
         "https://expertphotography.com/best-retro-camera/",
         "https://www.newscientist.com/article/mg25634130-200-a-gift-from-nature-geothermal-energy-in-tuscanys-valle-del-diavolo/",
         "https://petapixel.com/2023/03/03/apples-29-year-old-landmark-quicktake-100-camera-falters-in-2023/",
-        "https://www.wired.com/gallery/best-photo-video-accessories-for-iphone-android/",
-        "https://www.dpreview.com/news/7860893940/film-friday-meet-luminar-100-a-new-35mm-color-film-stock-made-kodak-aerocolor-iv-aerial-film",
-        "https://fstoppers.com/film/most-overrated-and-underrated-film-cameras-2021-563868",
-        "https://iso.500px.com/11-tips-photographers-shoot-film-analog/",
-        "https://www.studiobinder.com/blog/how-to-shoot-film-photography/",
-        "https://iso.500px.com/how-to-increase-your-prices-as-a-freelance-photographer/"
+        # "https://www.wired.com/gallery/best-photo-video-accessories-for-iphone-android/",
+        # "https://www.dpreview.com/news/7860893940/film-friday-meet-luminar-100-a-new-35mm-color-film-stock-made-kodak-aerocolor-iv-aerial-film",
+        # "https://fstoppers.com/film/most-overrated-and-underrated-film-cameras-2021-563868",
+        # "https://iso.500px.com/11-tips-photographers-shoot-film-analog/",
+        # "https://www.studiobinder.com/blog/how-to-shoot-film-photography/",
+        # "https://iso.500px.com/how-to-increase-your-prices-as-a-freelance-photographer/"
     }
 
-    rawfilename = "database_elt_raw.db"
-    mainfilename = "database_elt_main.db"
-    db_path = "project\database\\for_dev\\"
+    rawfilename = "database_elt_raw_small.db"
+    mainfilename = "database_elt_main_small.db"
+    db_path = "project\\database\\for_dev\\"
 
     grc = get_raw_content(db_path+rawfilename, db_path+mainfilename)
     start_depth = 1

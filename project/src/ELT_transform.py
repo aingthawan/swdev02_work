@@ -147,8 +147,8 @@ class main_database:
 def data_processing():
     
     directory = "project\database\\for_dev\\"
-    raw_dir = directory + "database_elt_raw.db"
-    main_dir = directory + "database_elt_main.db"
+    raw_dir = directory + "database_elt_raw_small.db"
+    main_dir = directory + "database_elt_main_small.db"
     
     rawd = raw_database(raw_dir)
     mdb = main_database(main_dir)

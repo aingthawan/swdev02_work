@@ -16,6 +16,15 @@ class invertedIndexSearch:
         self.tc = TextCleaners()
         self.conn = sqlite3.connect(database_file)
         self.curr = self.conn.cursor()
+        self.create_cache_table()
+
+    def create_cache_table(self):
+        """Create a table for caching the search result, Attribute : List of query, List of ID"""
+        self.curr.execute("""CREATE TABLE IF NOT EXISTS Search_Cache (
+            Query_List TEXT,
+            ID_List TEXT
+        )""")
+        self.conn.commit()
 
     def close(self):
         """close the database connection"""
@@ -137,18 +146,67 @@ class invertedIndexSearch:
         end_time = time.time()
         print(" New TF-IDF Ranking Time : ", end_time - start_time)
         return sorted_final_score_dict.keys()
+    
+    
+    def compare_query(self, list1, list2):
+        """Method for comparing two list of words, True if equal, False if not equal."""
+        # check if all word in list1 is in list2
+        # return True if all word in list1 is in list2
+        if len(list1) == len(list2):
+            for word in list1:
+                if word not in list2:
+                    return False
+            return True
+        else:
+            return False
+    
+    # a method to cache the result
+    def search_cacher(self, user_query, id_list):
+        """Method for caching the result of the search"""
+        # insert query and result list to the cache table
+        self.curr.execute(f"INSERT INTO Search_Cache (Query_List, ID_List) VALUES ('{user_query}', '{id_list}')")
+        self.conn.commit()
+        
+    # method to check if the query is in the cache
+    def search_cache_checker(self, cleaned_query):
+        # check if the query is in the Query_List column
+        # if yes return the ID_List
+        self.curr.execute("SELECT Query_List FROM Search_Cache")
+        search_cache = self.curr.fetchall()
+        for item in search_cache:
+            if self.compare_query(cleaned_query, item[0].split(",")):
+                # if the query is in the cache, return the result
+                self.curr.execute("SELECT ID_List FROM Search_Cache WHERE Query_List = ?", (item[0],))
+                return eval(self.curr.fetchone()[0])
+            # else return None
+            else:
+                continue
+        # out of the loop, return None
+        return None
+
 
     def full_search(self, user_query):
         """return a list of url from a user query"""
         cleaned_query = self.queryCleaner(user_query)
         if cleaned_query != None:
-            id_list = self.invertedIndexSearch(cleaned_query)
-            # get a list of ranked url
-            if id_list != None:
-                return self.Link_from_ID(id_list)
+            # check if the query is in the cache
+            load_from_cache = self.search_cache_checker(cleaned_query)
+            if load_from_cache == None:
+                # not in cache, search the query
+                id_list = self.invertedIndexSearch(cleaned_query)
+                # get a list of ranked url
+                if id_list != None:
+                    # return self.Link_from_ID(id_list)
+                    # return the result and cache the result
+                    self.search_cacher(",".join(cleaned_query), id_list)
+                    return self.Link_from_ID(id_list)
+                else:
+                    return None            
             else:
-                return None
-            
+                print("From Cache")
+                # ================================================
+                return self.Link_from_ID(load_from_cache) 
+                # print(load_from_cache)
         else:
             return None
         
@@ -156,48 +214,30 @@ class invertedIndexSearch:
         
 
 # main
-# if __name__ == "__main__":
+if __name__ == "__main__":
 
-#     os.system('cls')
-#     print("\nWelcome to the Search Engine\nSetting up . . .\n\n")
-#     file_name = 'database_elt_main_backup.db'
-#     database_file = 'project\database\\' + file_name
-#     # make a loop for searching until user want to exit
-#     # using try and except for error handling keyboard interrupt to exit the program
-#     iis = invertedIndexSearch(database_file)
-#     os.system('cls')
+    os.system('cls')
+    print("\nWelcome to the Search Engine\nSetting up . . .\n\n")
+    file_name = 'database_elt_main_small.db'
+    database_file = 'project\\database\\for_dev\\' + file_name
+    # make a loop for searching until user want to exit
+    # using try and except for error handling keyboard interrupt to exit the program
+    iis = invertedIndexSearch(database_file)
+    os.system('cls')
 
-#     try:
-#         while True:
-#             user_query = input("\n\nEnter your search query : ")
-#             os.system('cls')
-#             # clean_query = iis.queryCleaner(user_query)
-#             # print("Your query : ", user_query)
-#             # print("cleaned query : ", clean_query)
-#             # searched_id_list = iis.invertedIndexSearch(clean_query)
-#             # if searched_id_list != None:  
-#             #     ranked_result = iis.TFIDFRank(clean_query, searched_id_list)
-#             #     print("\nResults : ")
-#             #     final_result = iis.Link_from_ID(ranked_result)
-#             #     # final_result = iis.Link_from_ID(searched_id_list)
-
-#             #     # print top 10 result
-#             #     for result in final_result[:9]:
-#             #         print(result[0])
-                
-#             #     # print(searched_id_list)
-                
-#             # else:
-#             #     print("No result found")
-#             result_list = iis.full_search(user_query)
-#             if result_list == None:
-#                 print("No result found")
-#             else:
-#                 for result in result_list[:9]:
-#                     print(result[0])
+    try:
+        while True:
+            user_query = input("\n\nEnter your search query : ")
+            os.system('cls')
+            result_list = iis.full_search(user_query)
+            if result_list == None:
+                print("No result found")
+            else:
+                for result in result_list[:9]:
+                    print(result[0])
         
 
-#     except KeyboardInterrupt:
-#         os.system('cls')
-#         iis.close()
-#         print("\n\n\t~ Quit program ~\n\n")
+    except KeyboardInterrupt:
+        os.system('cls')
+        iis.close()
+        print("\n\n\t~ Quit program ~\n\n")
