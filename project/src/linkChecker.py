@@ -15,15 +15,17 @@ class LinkCheckers:
         self.cursor = self.conn.cursor()
 
         self.createTable()
-        
+    
+    # tested
     def createTable(self):
         # Create table for keeping domain name of url and times of referenced to
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
         # Create a table for unique id for each url and list of all words in that url and list of url found on that page
         self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
-        # Create table for each word, number of documnet that conatain that word and dictionary of sorted key that are id of url and number of that word found on that link
+        # Create table for each word, number of document that contain that word and dictionary of sorted key that are id of url and number of that word found on that link
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
-    
+        self.cursor.execute("""CREATE TABLE IF NOT EXISTS Search_Cache (Query_List TEXT, ID_List TEXT)""")
+        
     def alreadyScrape(self, url_to_check):
         """Check whether url already scrape, Return in True or false"""
 
@@ -54,6 +56,7 @@ class LinkCheckers:
         except (requests.exceptions.HTTPError, requests.exceptions.RequestException) as err:
             return False
 
+    # tested
     def get_domain(self, url):
         """Get domain name from url"""
         if len(url) > 0 and (url != None):
@@ -80,6 +83,7 @@ class LinkCheckers:
     #     domain2 = urlparse(url2).netloc.split('.')[-2:]
     #     return domain1 == domain2
 
+    # tested
     def compareDomains(self, url1, url2):
         """Compare two url domain"""
         return self.get_domain(url1) == self.get_domain(url2)

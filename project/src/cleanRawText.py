@@ -29,15 +29,17 @@ class TextCleaners:
         self.nlp = spacy.load("en_core_web_sm")
         self.stop_words = set(stopwords.words('english'))
 
+    # tested
     def normalize(self, raw_text):
         """Remove special characters and lowercase text"""
         return re.sub(r"(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)|^rt|http.+?", " ", raw_text.lower())
 
+    # unused!
     def remove_emoji(self, text):
         """Remove emoji from text"""
         emoji_pattern = re.compile("["
                            u"\U0001F600-\U0001F64F" #emotions
-                           u"\U0001F300-\U0001F5FF" #sumbols and pictographs
+                           u"\U0001F300-\U0001F5FF" #symbols and pictographs
                            u"\U0001F680-\U0001F6FF" #transport and map symbols
                            u"\U0001F1E0-\U0001F1FF" #flags
                            u"\U00002702-\U000027B0"  
@@ -46,16 +48,19 @@ class TextCleaners:
                            "]+",flags = re.UNICODE)
         return emoji_pattern.sub(r'', text)
 
+    # tested
     def remove_stopwords(self, raw_text):
         """Remove stopwords"""
         words = [word for word in raw_text.split() if word not in self.stop_words]
         return " ".join(words)
 
+    # tested
     def lemmatize(self, raw_text):
         """Perform lemmatization, return as a list of strings"""
         doc = self.nlp(raw_text)
         return [token.lemma_ for token in doc]
 
+    # tested
     def clean(self, raw_text):
         """Clean text by normalizing, removing stopwords, and lemmatizing"""
         # For user query
@@ -63,6 +68,7 @@ class TextCleaners:
         raw_text = self.remove_stopwords(raw_text)
         return self.lemmatize(raw_text)   
 
+    # tested
     def clean_raw(self, raw_text):
         """Clean text by normalizing, removing stopwords, and lemmatizing"""
         # For raw text
@@ -90,5 +96,3 @@ class TextCleaners:
         raw_text = self.normalize(raw_text)
         raw_text = self.remove_stopwords(raw_text)
         return self.lemmatize(raw_text)
-
-    

@@ -1,10 +1,11 @@
 # unit test for rawKeeper_ELT.py
-# ok for now Feb 14, 2023
+# Okay
 
 
 import unittest
 # import sqlite3
 from rawKeeper_ELT import rawKeeper
+import os
 
 
 class TestRawKeeper(unittest.TestCase):
@@ -13,12 +14,19 @@ class TestRawKeeper(unittest.TestCase):
     def setUp(self):
         """Create a database for testing"""
         # Create a database in memory
-        self.rk = rawKeeper(':memory:')
+        self.test_db = 'project/database/for_test/test_rawKeeper_database.db'
+        self.rk = rawKeeper(self.test_db)
         # Create a table for testing
         self.rk.insertRaw('http://example.com', 'raw content')
 
     def tearDown(self):
         self.rk.close()
+        os.remove(self.test_db)
+        
+    def test_createTable(self):
+        # check if the table is created
+        self.rk.cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='RawMaterial'")
+        self.assertIsNotNone(self.rk.cursor.fetchone())       
 
     def test_insertRaw(self):
         """Test insertRaw() method"""

@@ -1,11 +1,9 @@
 # a file for searching url from database and return the ranked url
 
 from cleanRawText import *
-
 import sqlite3
 import os
 import math
-
 import time
 
 class invertedIndexSearch:
@@ -30,6 +28,7 @@ class invertedIndexSearch:
         """close the database connection"""
         self.conn.close()
 
+    # tested
     def queryCleaner(self, query):
         """clean the query from the user, return the clean query unrepeated list"""
         clean_query = self.tc.clean(query)
@@ -51,7 +50,8 @@ class invertedIndexSearch:
             return list_temp
         except:
             return None
-            
+    
+    # tested        
     def get_common_id(self, lists):
         """return a list of common id from a list of list of id"""
         try:

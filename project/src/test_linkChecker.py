@@ -5,10 +5,11 @@ from linkChecker import *
 import sqlite3
 import unittest
 from unittest.mock import patch, Mock
+import os
 
 class TestLinkCheckers(unittest.TestCase):
     def setUp(self):
-        self.database_file = 'project/database/test_database.db'
+        self.database_file = 'project/database/for_test/test_database2.db'
         self.link_checkers = LinkCheckers(self.database_file)
 
     def tearDown(self):
@@ -19,7 +20,8 @@ class TestLinkCheckers(unittest.TestCase):
         conn.execute("DROP TABLE IF EXISTS web_Data")
         conn.execute("DROP TABLE IF EXISTS Inverted_Index")
         conn.close()
-
+        os.remove(self.database_file)
+    
     def test_createTable(self):
         # Test that tables are created
         conn = sqlite3.connect(self.database_file)
@@ -43,11 +45,11 @@ class TestLinkCheckers(unittest.TestCase):
     #     result = self.link_checkers.checkAccessibility(url)
     #     self.assertTrue(result)
 
-        # # Test that checkAccessibility returns False when an invalid URL is provided
-        # mock_requests_get.side_effect = requests.exceptions.RequestException
-        # url = 'https://www.invalidurl.com'
-        # result = self.link_checkers.checkAccessibility(url)
-        # self.assertFalse(result)
+    #     # Test that checkAccessibility returns False when an invalid URL is provided
+    #     mock_requests_get.side_effect = requests.exceptions.RequestException
+    #     url = 'https://www.invalidurl.com'
+    #     result = self.link_checkers.checkAccessibility(url)
+    #     self.assertFalse(result)
 
     def test_get_domain(self):
         # Test that get_domain returns the correct domain name for a given URL

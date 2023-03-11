@@ -43,6 +43,7 @@ class pageScrapers:
     #             proxies.append(line.strip())
     #     return proxies
     
+    # tested
     def get_raw_html(self, url):
         """get raw html soup obj using a rotating proxy"""
         res_temp = requests.get(url, headers=self.headers)
@@ -51,6 +52,7 @@ class pageScrapers:
         else:
             return None
     
+    # tested
     def scrape_raw_text(self, html_text):
         """Return raw text string from bs4 boject"""
         # soup = BeautifulSoup(html_text, 'html.parser')
@@ -72,6 +74,7 @@ class pageScrapers:
     #             urls.append(url)
     #     return list(set(urls))
     
+    # tested
     def scrape_all_urls(self, html_text):
         soup = BeautifulSoup(html_text, 'html.parser')
         urls = set()
@@ -81,6 +84,7 @@ class pageScrapers:
                 urls.add(url)
         return list(urls)
 
+    # just a combination of above two methods, no testing
     def scrape_page(self, url):
         """Return a dictionary of url, all unrepeated backlinks and raw text"""
         raw_soup_html = self.get_raw_html(url).text

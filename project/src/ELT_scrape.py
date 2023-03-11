@@ -11,6 +11,7 @@ class get_raw_content:
 
         self.lc = LinkCheckers(main_database_file)
 
+    # tested
     def get_domain(self, url):
         """Get domain name (example.com) from a url"""
         parsed_url = urlparse(url)
@@ -19,6 +20,7 @@ class get_raw_content:
             domain = domain[4:]
         return domain
 
+    # tested
     def crawl(self, url, current_depth, limit_depth):
         """Crawl the website and keep the raw content in the database"""
         # check if the current depth is less than the limit depth

@@ -1,5 +1,5 @@
 # file for testing the raw database class in ELT_transform.py
-# okay for now
+# okay 
 
 import unittest
 import sqlite3
@@ -10,7 +10,7 @@ class TestRawDatabase(unittest.TestCase):
 
     def setUp(self):
         """set up the test"""
-        self.db_name = 'project/database/test.db'
+        self.db_name = 'project/database/for_test/test.db'
         self.conn = sqlite3.connect(self.db_name)
         self.cur = self.conn.cursor()
         self.cur.execute('''CREATE TABLE rawMaterial (id INTEGER PRIMARY KEY, url TEXT)''')

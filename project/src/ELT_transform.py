@@ -15,15 +15,15 @@ import sqlite3
 import time
 
 
-def word_frequency_dict(words_list):
-    """Turn list of words into dictionary with word as key and frequency as value"""
-    frequency_dict = {}
-    for word in words_list:
-        if word in frequency_dict:
-            frequency_dict[word] += 1
-        else:
-            frequency_dict[word] = 1
-    return frequency_dict    
+# def word_frequency_dict(words_list):
+#     """Turn list of words into dictionary with word as key and frequency as value"""
+#     frequency_dict = {}
+#     for word in words_list:
+#         if word in frequency_dict:
+#             frequency_dict[word] += 1
+#         else:
+#             frequency_dict[word] = 1
+#     return frequency_dict    
 
 class raw_database:
     """class for getting the raw content from the database and remove"""
@@ -33,7 +33,7 @@ class raw_database:
         self.conn = sqlite3.connect(database)
         self.cur = self.conn.cursor()
         
-
+    # tested
     def get_row(self): 
         """get the row from the database"""
         self.cur.execute("SELECT * FROM rawMaterial LIMIT 1")
@@ -44,6 +44,7 @@ class raw_database:
         else:
             return row
 
+    # tested
     def delete_row(self, url):
         """delete the row from the database"""
         # try if row exist
@@ -69,6 +70,7 @@ class main_database:
         self.ps = pageScrapers()
         self.dp = dataPipelines(main_database)
 
+    # tested
     def get_domain(self, url):
         """Get domain name (example.com) from a url"""
         parsed_url = urlparse(url)
@@ -77,6 +79,7 @@ class main_database:
             domain = domain[4:]
         return domain
 
+    # tested in datapipeline
     def updateLink(self, url, raw_content):
         """update the link into the database"""
         # Clean raw content
@@ -104,14 +107,15 @@ class main_database:
         self.dp.updateInvertedIndexing(new_id, clean_content)
         # remove cache
         self.dp.removeTermInCache(list(clean_content_dict.keys()))
-        
+    
+    # tested in datapipeline
     def direct_update_link(self, url):
         """update the link into the database, without raw content, using method above"""
         # get raw content of the url
         page_content = self.ps.get_raw_html(url)
         self.updateLink(url, page_content)
 
-
+    # tested in datapipeline
     def removeData(self, url):
         """remove the data from the database"""
         temp_datarow = self.dp.fetch_data_by_url(url)
@@ -121,6 +125,7 @@ class main_database:
         # remove cache
         self.dp.removeTermInCache(temp_datarow['All_Word'])
     
+    # tested in datapipeline
     def removeDataByWebID(self, web_id):
         """remove the data from the database"""
         temp_datarow = self.dp.fetch_data_by_id(web_id)
@@ -133,6 +138,7 @@ class main_database:
             # print("Data with ID : ", web_id  ," not found in database")
             pass
 
+    # tested
     def word_frequency_dict(self, words_list):
         """Turn list of words into dictionary with word as key and frequency as value"""
         frequency_dict = {}

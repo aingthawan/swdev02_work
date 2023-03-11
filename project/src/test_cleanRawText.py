@@ -1,5 +1,5 @@
 # Unit tests for cleanRawText.py
-# OK for now Feb 14, 2023 
+# Okay 
 
 from cleanRawText import *
 import unittest
