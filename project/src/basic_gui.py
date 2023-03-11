@@ -159,7 +159,7 @@ class SearchWidget(QWidget):
         else:
             try:
                 # create the data pipeline object
-                tf = main_database(self.database_file)
+                tf = main_database(self.database_file) 
                 tf.direct_update_link(input_url)
                 tf.close()
                 # clear the insert line edit

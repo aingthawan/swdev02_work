@@ -20,7 +20,8 @@ class dataPipelines:
         self.conn = sqlite3.connect(database_file)
         self.cursor = self.conn.cursor()
         self.createTable()
-        
+    
+    # tested
     def createTable(self):
         # Create table for keeping domain name of url and times of referenced to
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
@@ -28,9 +29,10 @@ class dataPipelines:
         self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
         # Create table for each word, number of document that contain that word and dictionary of sorted key that are id of url and number of that word found on that link
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
-        
+        # create table for keeping list of query and list of id that match with that query
         self.cursor.execute("""CREATE TABLE IF NOT EXISTS Search_Cache (Query_List TEXT, ID_List TEXT)""")
-
+    
+    # tested
     def uncountRef(self, domain_name_list):
         """For uncount referenced domain"""
         for domain in domain_name_list:
@@ -38,6 +40,7 @@ class dataPipelines:
             self.cursor.execute(f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'")
             self.conn.commit()
     
+    # testing
     def removeInvertedIndex(self, web_id, words):
         """Remove id from indexing and reduce docsfreq"""
         for word in words:
@@ -47,14 +50,14 @@ class dataPipelines:
             self.cursor.execute(f"UPDATE Inverted_Index SET Document_Freq=Document_Freq-1, Inverted_Dict=? WHERE Word=?", (str(inverted_dict), word))
         self.conn.commit()
 
-        
+    # tested
     def removeWebData(self, url):
         """Remove data from web_Data"""
         self.cursor.execute(f"DELETE FROM web_Data WHERE URL=?", (url,))
         self.conn.commit()
 
     # ==============================================================
-
+    # tested
     def getUniqueID(self):
         """function for unique unused ID for a website"""
         self.cursor.execute(f"SELECT MAX(Web_ID) FROM web_Data")
@@ -65,6 +68,7 @@ class dataPipelines:
             next_id += 1
         return next_id
     
+    # tested
     def fetch_data_by_url(self, url):
         """get data from row by url"""
         self.cursor.execute("SELECT Web_ID, URL, All_Word, Ref_To FROM web_Data WHERE URL=?", (url,))
@@ -83,6 +87,7 @@ class dataPipelines:
         else:
             return None
 
+    # tested
     def fetch_data_by_id(self, web_id):
         """get data from row by id"""
         self.cursor.execute("SELECT Web_ID, URL, All_Word, Ref_To FROM web_Data WHERE Web_ID=?", (web_id,))
@@ -101,8 +106,7 @@ class dataPipelines:
         else:
             return None
 
-
-    # cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
+    # tested
     def updateReferenceDomain(self, domains):
         """Update reference domain receiving a list of domain"""
         for domain in domains:
@@ -121,7 +125,8 @@ class dataPipelines:
         # Commit the changes to the database
         self.conn.commit()
     
-#     OKAY ================================================================================
+    # OKAY ================================================================================
+    # tested
     def updateWebData(self, web_id, url, all_words, ref_to):
         """Insert new url data into web_Data"""
         words = list(all_words.keys())
@@ -132,7 +137,7 @@ class dataPipelines:
         self.conn.commit()
         
     
-    # cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
+    # tested
     def updateInvertedIndexing(self, web_id, word_list):
         word_count = {}
         for word in word_list:
@@ -151,7 +156,8 @@ class dataPipelines:
             # self.cursor.execute("SELECT * FROM Inverted_Index ORDER BY Word ASC")
             # self.conn.commit()
         self.conn.commit()         
-        
+    
+    # tested
     def removeTermInCache(self, term_list):
         """Check if term in the list is in cache, remove that cache row"""
         self.cursor.execute("SELECT Query_List FROM Search_Cache")
