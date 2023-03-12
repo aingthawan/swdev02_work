@@ -82,36 +82,41 @@ class main_database:
     # tested in datapipeline
     def updateLink(self, url, raw_content):
         """update the link into the database"""
-        # Clean raw content
-        clean_content = self.tc.clean_raw(raw_content)
-        clean_content_dict = self.word_frequency_dict(clean_content)
+        # check if the url is already in the database
+        if self.dp.fetch_data_by_url(url) is None:
+            # Clean raw content
+            clean_content = self.tc.clean_raw(raw_content)
+            clean_content_dict = self.word_frequency_dict(clean_content)
+            
+            all_backlink_list = self.ps.scrape_all_urls(raw_content)
+            
+            url_domain = self.get_domain(url)
+            # get a list of unique domain from all backlinks
+            all_backlink_domain_list = []
+            for link in all_backlink_list:
+                link_domain = self.get_domain(link)
+                if (self.get_domain(link) not in all_backlink_domain_list) and (link_domain != url_domain):
+                    all_backlink_domain_list.append(link_domain)
+            
+            new_id = self.dp.getUniqueID()
         
-        all_backlink_list = self.ps.scrape_all_urls(raw_content)
-        
-        url_domain = self.get_domain(url)
-        # get a list of unique domain from all backlinks
-        all_backlink_domain_list = []
-        for link in all_backlink_list:
-            link_domain = self.get_domain(link)
-            if (self.get_domain(link) not in all_backlink_domain_list) and (link_domain != url_domain):
-                all_backlink_domain_list.append(link_domain)
-        
-        new_id = self.dp.getUniqueID()
-    
-        # updating reference domain
-        self.dp.updateReferenceDomain(all_backlink_domain_list)
-        # update webData
-        # def updateWebData(self, web_id, url, all_words, ref_to):
-        self.dp.updateWebData(new_id, url, clean_content_dict, all_backlink_domain_list)
-        # update invertedIndex
-        self.dp.updateInvertedIndexing(new_id, clean_content)
-        # remove cache
-        self.dp.removeTermInCache(list(clean_content_dict.keys()))
+            # updating reference domain
+            self.dp.updateReferenceDomain(all_backlink_domain_list)
+            # update webData
+            # def updateWebData(self, web_id, url, all_words, ref_to):
+            self.dp.updateWebData(new_id, url, clean_content_dict, all_backlink_domain_list)
+            # update invertedIndex
+            self.dp.updateInvertedIndexing(new_id, clean_content)
+            # remove cache
+            self.dp.removeTermInCache(list(clean_content_dict.keys()))
+        else:
+            print("URL : ", url, " already in database")
     
     # tested in datapipeline
     def direct_update_link(self, url):
         """update the link into the database, without raw content, using method above"""
         # get raw content of the url
+        print("Updating URL : ", url)
         page_content = self.ps.get_raw_html(url)
         self.updateLink(url, page_content)
 

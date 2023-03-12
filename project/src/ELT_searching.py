@@ -87,35 +87,63 @@ class invertedIndexSearch:
         # print("Total ", len(temp), " results found")
         return temp
     
+    # def TFScore(self, word, IDlist):
+    #     """return the TF score for each id in the id list to a term"""
+    #     score_temp = {}
+    #     # start_time = time.time()
+    #     for ids in IDlist:
+    #         # total word in the document
+    #         total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))
+    #         total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
+    #         score_temp[ids] = total_term / total_words
+    #     end_time = time.time()
+    #     # print("TF Score Time : ", end_time - start_time)
+    #     return score_temp
     def TFScore(self, word, IDlist):
         """return the TF score for each id in the id list to a term"""
         score_temp = {}
-        # start_time = time.time()
+        inverted_dict = {}
+        total_words_dict = {}
+        # Get inverted dictionary and total word count for all documents in IDlist
         for ids in IDlist:
-            # total word in the document
-            total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))
-            total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
-            score_temp[ids] = total_term / total_words
-        end_time = time.time()
-        # print("TF Score Time : ", end_time - start_time)
+            doc_row = self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()
+            total_words = len(doc_row[0].split(" , "))
+            total_words_dict[ids] = total_words
+            inverted_dict[ids] = eval(self.curr.execute(f"SELECT Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'").fetchone()[0])
+        # Calculate TF scores for each document in IDlist
+        for ids in IDlist:
+            score_temp[ids] = inverted_dict[ids][ids] / total_words_dict[ids]
         return score_temp
+
         
 
+    # def IDFScore(self, word_list):
+    #     """return the IDF score dictionary of each word in the word list"""
+    #     # start_time = time.time()
+    #     score_temp = {}
+    #     for word in word_list:
+    #         # get total document
+    #         self.curr.execute("SELECT COUNT(*) FROM web_Data")
+    #         total_doc = self.curr.fetchone()[0]
+    #         # get total document contain the word
+    #         self.curr.execute(f"SELECT Document_Freq FROM Inverted_Index WHERE Word = '{word}'")
+    #         total_doc_contain = self.curr.fetchone()[0]
+    #         score_temp[word] = math.log(total_doc / total_doc_contain)
+    #     # end_time = time.time()
+    #     # print("IDF Score Time : ", end_time - start_time)
+    #     return score_temp
     def IDFScore(self, word_list):
-        """return the IDF score dictionary of each word in the word list"""
-        # start_time = time.time()
         score_temp = {}
+        self.curr.execute("SELECT COUNT(*) FROM web_Data")
+        total_doc = self.curr.fetchone()[0]
+        word_freq_query = "SELECT Word, Document_Freq FROM Inverted_Index WHERE Word IN ({})".format(','.join(['?'] * len(word_list)))
+        self.curr.execute(word_freq_query, word_list)
+        word_freqs = dict(self.curr.fetchall())
         for word in word_list:
-            # get total document
-            self.curr.execute("SELECT COUNT(*) FROM web_Data")
-            total_doc = self.curr.fetchone()[0]
-            # get total document contain the word
-            self.curr.execute(f"SELECT Document_Freq FROM Inverted_Index WHERE Word = '{word}'")
-            total_doc_contain = self.curr.fetchone()[0]
-            score_temp[word] = math.log(total_doc / total_doc_contain)
-        # end_time = time.time()
-        # print("IDF Score Time : ", end_time - start_time)
+            total_doc_contain = word_freqs.get(word, 0)
+            score_temp[word] = math.log(total_doc / total_doc_contain) if total_doc_contain > 0 else 0
         return score_temp
+
 
 
     # Version 2
@@ -167,21 +195,31 @@ class invertedIndexSearch:
         self.conn.commit()
         
     # method to check if the query is in the cache
+    # def search_cache_checker(self, cleaned_query):
+    #     # check if the query is in the Query_List column
+    #     # if yes return the ID_List
+    #     self.curr.execute("SELECT Query_List FROM Search_Cache")
+    #     search_cache = self.curr.fetchall()
+    #     for item in search_cache:
+    #         if self.compare_query(cleaned_query, item[0].split(",")):
+    #             # if the query is in the cache, return the result
+    #             self.curr.execute("SELECT ID_List FROM Search_Cache WHERE Query_List = ?", (item[0],))
+    #             return eval(self.curr.fetchone()[0])
+    #         # else return None
+    #         else:
+    #             continue
+    #     # out of the loop, return None
+    #     return None
     def search_cache_checker(self, cleaned_query):
         # check if the query is in the Query_List column
         # if yes return the ID_List
-        self.curr.execute("SELECT Query_List FROM Search_Cache")
-        search_cache = self.curr.fetchall()
-        for item in search_cache:
-            if self.compare_query(cleaned_query, item[0].split(",")):
-                # if the query is in the cache, return the result
-                self.curr.execute("SELECT ID_List FROM Search_Cache WHERE Query_List = ?", (item[0],))
-                return eval(self.curr.fetchone()[0])
-            # else return None
-            else:
-                continue
+        self.curr.execute("SELECT ID_List FROM Search_Cache WHERE Query_List = ?", (",".join(cleaned_query),))
+        result = self.curr.fetchone()
+        if result is not None:
+            return eval(result[0])
         # out of the loop, return None
         return None
+
 
 
     def full_search(self, user_query):
