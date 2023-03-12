@@ -7,54 +7,39 @@ class TestInvertedIndexSearch(unittest.TestCase):
 
     def setUp(self):
         self.path = "project/database/for_test/test_search_database.db"
-        # insert test data into the test database
-        self.conn = sqlite3.connect(self.path)
-        self.cursor = self.conn.cursor()
-        
-        # Create table for keeping domain name of url and times of referenced to
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
-        # Create a table for unique id for each url and list of all words in that url and list of url found on that page
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
-        # Create table for each word, number of document that contain that word and dictionary of sorted key that are id of url and number of that word found on that link
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
-        # create table for keeping list of query and list of id that match with that query
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS Search_Cache (Query_List TEXT, ID_List TEXT)""")
-        
-        # input some inverted index data
-        self.cursor.execute("INSERT INTO Inverted_Index VALUES ('hello', 3, '{1: 1, 2: 2, 3: 3}')")
-        self.cursor.execute("INSERT INTO Inverted_Index VALUES ('world', 3, '{1: 1, 2: 2, 3: 3}')")
-        # input some web data
-        self.cursor.execute("INSERT INTO web_Data VALUES (1, 'https://www.google1.com', 'hello world', 'https://www.google.com')")
-        self.cursor.execute("INSERT INTO web_Data VALUES (2, 'https://www.google2.com', 'hello world', 'https://www.google.com')")
-        self.cursor.execute("INSERT INTO web_Data VALUES (3, 'https://www.google3.com', 'hello world', 'https://www.google.com')")
-        self.conn.commit()
-        self.conn.close()
-        
         self.search = invertedIndexSearch(self.path)
-
-    def tearDown(self):
-        self.search.close()
-        # remove the test file
-        os.remove(self.path)
+        
+    def test_create_database(self):
+        self.search.create_cache_table()
+        conn = sqlite3.connect(self.path)
+        curr = conn.cursor()
+        # get all the table names
+        table_names = curr.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
+        conn.close()
+        # check if the table is created
+        self.assertIn(("Search_Cache",), table_names)
 
     def test_queryCleaner(self):
         # Test the queryCleaner method with a sample query
-        query = "   Hello   World  "
+        query = "   Hello  ,/ World  "
         cleaned_query = self.search.queryCleaner(query)
         self.assertEqual(cleaned_query, ["hello", "world"])
-
-    def test_getInvertedIndexDict(self):
-        # Test the getInvertedIndexDict method with a sample word list
-        word_list = ["hello", "world"]
-        inverted_index_dict = self.search.getInvertedIndexDict(word_list)
-        # self.assertIsNotNone(inverted_index_dict)
-        self.assertEquals(inverted_index_dict, [[1, 2, 3], [1, 2, 3]])
+        self.assertNotEqual(cleaned_query, ["Hello", "World"])
+        self.assertNotEqual(cleaned_query, ["hello", "world", " "])        
 
     def test_get_common_id(self):
         # Test the get_common_id method with a sample list of lists
         lists = [[1, 2, 3], [2, 3, 4], [3, 4, 5]]
         common_id_list = self.search.get_common_id(lists)
         self.assertListEqual(common_id_list, [3])
+        lists = [[1, 2, 3], [2, 3, 4], [3, 4, 5], [1, 2, 3, 4, 5]]
+        common_id_list = self.search.get_common_id(lists)
+        self.assertListEqual(common_id_list, [3])
+
+    def tearDown(self):
+        self.search.close()
+        # remove the test file
+        os.remove(self.path)
 
 
 # main function

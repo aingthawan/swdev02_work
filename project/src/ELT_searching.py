@@ -15,7 +15,12 @@ class invertedIndexSearch:
         self.conn = sqlite3.connect(database_file)
         self.curr = self.conn.cursor()
         self.create_cache_table()
+        
+    def close(self):
+        """close the database connection"""
+        self.conn.close()
 
+    # tested
     def create_cache_table(self):
         """Create a table for caching the search result, Attribute : List of query, List of ID"""
         self.curr.execute("""CREATE TABLE IF NOT EXISTS Search_Cache (
@@ -23,10 +28,6 @@ class invertedIndexSearch:
             ID_List TEXT
         )""")
         # self.conn.commit()
-
-    def close(self):
-        """close the database connection"""
-        self.conn.close()
 
     # tested
     def queryCleaner(self, query):
@@ -39,6 +40,7 @@ class invertedIndexSearch:
                 non_repeated_query.append(word)
         return non_repeated_query
 
+    
     def getInvertedIndexDict(self, word_list):
         """return a list of inverted index dictionary from a list of word"""
         list_temp = []

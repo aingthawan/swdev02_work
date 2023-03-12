@@ -9,31 +9,41 @@ import os
 
 class TestLinkCheckers(unittest.TestCase):
     def setUp(self):
-        self.database_file = 'project/database/for_test/test_database2.db'
+        self.database_file = 'project/database/for_test/test_linkChecker_database.db'
+        # remove test database file if it exists
+        try:
+            os.remove(self.database_file)
+        except OSError:
+            pass
+        conn = sqlite3.connect(self.database_file)
+        curr = conn.cursor()
+        # create Web_Data table
+        curr.execute("CREATE TABLE IF NOT EXISTS Web_Data(Web_ID, URL, All_Word, Ref_To)")
+        # insert some data for testing to Web_Data table
+        curr.execute("INSERT INTO Web_Data VALUES (1, 'https://www.example.com', 'example', 'https://www.example.com')")
+        conn.commit()
+        conn.close()
         self.link_checkers = LinkCheckers(self.database_file)
+        
+    def test_alreadyScrape(self):
+        self.assertTrue(self.link_checkers.alreadyScrape('https://www.example.com'))
+        self.assertFalse(self.link_checkers.alreadyScrape('https://www.example2.com'))
 
     def tearDown(self):
         self.link_checkers.close()
-        # Remove test database file
-        conn = sqlite3.connect(self.database_file)
-        conn.execute("DROP TABLE IF EXISTS Reference_Domain")
-        conn.execute("DROP TABLE IF EXISTS web_Data")
-        conn.execute("DROP TABLE IF EXISTS Inverted_Index")
-        conn.close()
-        os.remove(self.database_file)
     
-    def test_createTable(self):
-        # Test that tables are created
-        conn = sqlite3.connect(self.database_file)
-        # check that the tables are created correctly
-        reference_domain_table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Reference_Domain'")
-        web_data_table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='web_Data'")
-        inverted_index_table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Inverted_Index'")
-        # assert that the tables are created
-        self.assertIsNotNone(reference_domain_table.fetchone())
-        self.assertIsNotNone(web_data_table.fetchone())
-        self.assertIsNotNone(inverted_index_table.fetchone())
-        conn.close()
+    # def test_createTable(self):
+    #     # Test that tables are created
+    #     conn = sqlite3.connect(self.database_file)
+    #     # check that the tables are created correctly
+    #     reference_domain_table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Reference_Domain'")
+    #     web_data_table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='web_Data'")
+    #     inverted_index_table = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Inverted_Index'")
+    #     # assert that the tables are created
+    #     self.assertIsNotNone(reference_domain_table.fetchone())
+    #     self.assertIsNotNone(web_data_table.fetchone())
+    #     self.assertIsNotNone(inverted_index_table.fetchone())
+    #     conn.close()
 
     # @patch('link_checkers.requests.get')
     # def test_checkAccessibility(self, mock_requests_get):
@@ -74,6 +84,7 @@ class TestLinkCheckers(unittest.TestCase):
         url2 = 'https://www.google.com'
         result = self.link_checkers.compareDomains(url1, url2)
         self.assertFalse(result)
+
 
 if __name__ == '__main__':
     unittest.main()

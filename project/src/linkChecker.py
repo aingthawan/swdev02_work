@@ -13,7 +13,6 @@ class LinkCheckers:
         """Input Database file"""
         self.conn = sqlite3.connect(database_file)
         self.cursor = self.conn.cursor()
-
         self.createTable()
     
     # tested
@@ -24,7 +23,8 @@ class LinkCheckers:
         self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
         # Create table for each word, number of document that contain that word and dictionary of sorted key that are id of url and number of that word found on that link
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
-        self.cursor.execute("""CREATE TABLE IF NOT EXISTS Search_Cache (Query_List TEXT, ID_List TEXT)""")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS Search_Cache (Query_List TEXT, ID_List TEXT)")
+        self.conn.commit()
         
     def alreadyScrape(self, url_to_check):
         """Check whether url already scrape, Return in True or false"""
@@ -91,6 +91,5 @@ class LinkCheckers:
     # method for terminate the connection
     def close(self):
         """Close the connection"""
-        # commit the changes
         self.conn.commit()
         self.conn.close
