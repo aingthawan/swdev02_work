@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QTextE
 from ELT_searching import invertedIndexSearch
 from ELT_transform import main_database
 import time
+import webbrowser
 
 class SearchWidget(QWidget):
     def __init__(self):
@@ -77,6 +78,11 @@ class SearchWidget(QWidget):
         self.search_button.clicked.connect(self.search)
         self.insert_button.clicked.connect(self.insert)
         self.delete_button.clicked.connect(self.remove)
+        
+        # double click to open url
+        self.output_area.itemDoubleClicked.connect(self.open_url)
+        # single click to append url to input box
+        self.output_area.itemClicked.connect(self.append_url)
 
         # Set the layout for the widget
         self.setLayout(main_layout)
@@ -122,32 +128,15 @@ class SearchWidget(QWidget):
         """
         self.setStyleSheet(style_sheet)
 
-    # def search(self):
-    #     """search function"""
-        
-    #     # get the query from the search line edit
-    #     query = self.search_input.text()
-    #     # check if input is not empty
-    #     if query == "":
-    #         self.log_area.addItem(QtWidgets.QListWidgetItem("Please enter a query"))
-    #         return
-    #     else:    
-    #         # create the inverted index search object
-    #         search = invertedIndexSearch(self.database_file)
-    #         # get the list of url from the query
-    #         links = search.full_search(query)
-    #         search.close()
-    #         # clear the search previous result list
-    #         self.output_area.clear()
-    #         # check if there is any result
-    #         if links != None:
-    #             for link in links:
-    #                 self.output_area.addItem(QtWidgets.QListWidgetItem(link[0]))
-    #             # display log in the log area
-    #             self.log_area.addItem(QtWidgets.QListWidgetItem("Search completed : " + query))
-    #         else:
-    #             self.log_area.addItem(QtWidgets.QListWidgetItem("No result found"))
-    #             self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
+    def append_url(self, item):
+        """append url to input box"""
+        url = item.text()
+        self.insert_input.setText(url)
+    
+    def open_url(self, item):
+        url = item.text()
+        webbrowser.open_new_tab(url)
+    
     def search(self):
         """search function"""
         
@@ -233,9 +222,7 @@ class SearchWidget(QWidget):
             except Exception as e:
                 self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to remove"))
                 self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
-                return
-
-        
+                return        
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -184,13 +184,16 @@ def data_processing():
                 url = row_temp[0]
                 raw = row_temp[1]
                 mdb.updateLink(url, raw)
+                mdb.close()
                 rawd.delete_row(url)
+                rawd.close()
                 print("Data processed. Time taken: %s seconds" % (time.time() - start_time))
     # if there is any error, remove the top row from raw database then continue
     except Exception as e:
         print(e)
         print("Error occured. Removing data from raw database...")
         rawd.delete_row(url)
+        rawd.close()
         print("Data removed. Continuing...")
         data_processing()
     # if keyboard interrupt, close the connection 

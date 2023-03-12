@@ -56,7 +56,6 @@ class dataPipelines:
         self.cursor.execute(f"DELETE FROM web_Data WHERE URL=?", (url,))
         self.conn.commit()
 
-    # ==============================================================
     # tested
     def getUniqueID(self):
         """function for unique unused ID for a website"""
@@ -125,7 +124,6 @@ class dataPipelines:
         # Commit the changes to the database
         self.conn.commit()
     
-    # OKAY ================================================================================
     # tested
     def updateWebData(self, web_id, url, all_words, ref_to):
         """Insert new url data into web_Data"""
