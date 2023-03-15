@@ -58,8 +58,8 @@ class spiderman:
                 
                 # for each link, crawl link
                 for link in links:
-                    # check if link having same domain as url
-                    if self.tp.domain_check(url, link):
+                    # check if link having same domain a url and not a picture
+                    if self.tp.domain_check(url, link) and not self.tp.picture_check(link):
                         self.crawl_link(link, depth + 1, limit)
                     else:
                         pass
@@ -92,13 +92,16 @@ def job_controller():
 def peter_parker():
     peter = spiderman()
     for url in starter:
-        peter.crawl_link(url, 1, 1)
+        peter.crawl_link(url, 1, 2)
     print("Spiderman is done!")
     del peter
     return sys.exit()
     
 
-starter = ["https://petapixel.com/2023/03/03/apples-29-year-old-landmark-quicktake-100-camera-falters-in-2023/",]
+starter = [ # "https://petapixel.com/2023/03/03/apples-29-year-old-landmark-quicktake-100-camera-falters-in-2023/",
+           "https://www.35mmc.com/14/03/2023/5-frames-in-nottingham-with-a-yashica-fx-d-and-contax-zeiss-85mm-f1-4-by-ellis-thomas/",
+        #    "https://fstoppers.com/reviews/review-new-fujifilm-instax-mini-12-camera-627478"
+           ]
 paused = False # Global variable for pausing
 quitting = False # Global variable for quitting
 
@@ -118,14 +121,9 @@ if __name__ == "__main__":
             starter = pickle.load(f)
     
     # separate thread for peter_parker then continue
-    peter = threading.Thread(target=peter_parker).start()
+    threading.Thread(target=peter_parker).start()
     
     print("Spiderman is on the job!")
     
-    job = threading.Thread(target=job_controller).start()
-    
-    if peter.is_alive():        
-        peter.join()
-    else:
-        sys.exit()
+    threading.Thread(target=job_controller).start()
     

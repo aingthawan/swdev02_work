@@ -4,7 +4,7 @@ class main_manager:
     """Class for working on main database,"""
     
     def __init__(self, database_file):
-        self.conn.connect(database_file, timeout=10)
+        self.conn = sqlite3.connect(database_file, timeout=10)
         self.cursor = self.conn.cursor()
         self.create_table()
         
@@ -15,10 +15,10 @@ class main_manager:
         
     def create_table(self):
         """Create table for main content"""
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS reference_domain(domain_name TEXT, ref_count INTEGER)")
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS web_data(web_id INTEGER, url TEXT, all_word TEXT, ref_to TEXT)")
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS inverted_index(word TEXT, document_freq INTEGER, inverted_dict TEXT)")
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS search_cache(query_list TEXT, ID_List TEXT)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS reference_domain(domain_name, ref_count)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS web_data(web_id, url, all_word, ref_to)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS inverted_index(word, document_freq, inverted_dict)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS search_cache(query_list, ID_List)")
         self.conn.commit()
         
     def url_exist_check(self, url):
@@ -51,8 +51,11 @@ class main_manager:
         
     def get_new_id(self):
         """Get new ID for new web page, return the new ID ( max ID + 1 )"""
-        return self.cursor.execute("SELECT MAX(web_id) FROM web_data").fetchone()[0] + 1
-    
+        try:
+            return self.cursor.execute("SELECT MAX(web_id) FROM web_data").fetchone()[0] + 1
+        except TypeError:
+            return 1
+
     def update_reference_domain(self, list_of_domain):
         """Update each domain's reference count in the table reference_domain of main database"""
         for domain in list_of_domain:
@@ -61,18 +64,14 @@ class main_manager:
                 self.cursor.execute("UPDATE reference_domain SET ref_count = ref_count + 1 WHERE domain_name = ?", (domain,))
             else:
                 self.cursor.execute("INSERT INTO reference_domain VALUES (?, ?)", (domain, 1))
-                
-    def update_web_data(self, url, all_word, ref_to):
+            self.conn.commit()
+
+    def update_web_data(self, new_id, url, all_word, ref_to):
         """Update web_data table with new web page's information"""
-        # if url not exist in the table, insert new row
-        if self.url_exist_check(url) is False:
-            new_id = self.get_new_id()
-            all_word_str = ",".join(all_word)
-            ref_to_str = ",".join(ref_to)
-            self.cursor.execute("INSERT INTO web_data VALUES (?, ?, ?, ?)", (new_id, url, all_word_str, ref_to_str))
-        else:
-            print("main_manager : URL already exists in the table")
-            pass
+        all_word_str = ",".join(all_word)
+        ref_to_str = ",".join(ref_to)
+        self.cursor.execute("INSERT INTO web_data VALUES (?, ?, ?, ?)", (new_id, url, all_word_str, ref_to_str))
+        self.conn.commit()
         
     def update_inverted_index(self, web_id, word_list):
         """Update inverted_index table with new web page's information"""
@@ -89,9 +88,12 @@ class main_manager:
                 self.cursor.execute(f"UPDATE inverted_index SET document_freq = document_freq + 1, inverted_Dict = '{inverted_dict}' WHERE Word = '{word}'")
             else:
                 self.cursor.execute(f"INSERT INTO inverted_index (word, document_freq, inverted_dict) VALUES ('{word}', 1, '{{{web_id}:{count}}}')")
-                
+        self.conn.commit()
+
     def update_search_cache(self, query_list, ID_list):
         """Update search_cache table with new query and ID list"""
         query_list_str = ",".join(query_list)
         ID_list_str = ",".join(ID_list)
         self.cursor.execute("INSERT INTO search_cache VALUES (?, ?)", (query_list_str, ID_list_str))
+        self.conn.commit()
+    # def relate_cache_remover(self, word_list):

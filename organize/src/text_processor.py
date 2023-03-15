@@ -43,7 +43,7 @@ class text_processor:
         # For user query
         raw_text = self.normalize(raw_text)
         raw_text = self.remove_stopwords(raw_text)
-        return self.lemmatize(raw_text)   
+        return self.lemmatize(raw_text)   # words in a list ( can be repeated )
 
     # tested
     def clean_raw(self, raw_text):
@@ -105,7 +105,17 @@ class text_processor:
             }
         else:
             return None
-        
+    
+    def get_ref_domain(self, url, url_list):
+        """Get all unique domains that got reference from a list of urls"""
+        temp = []
+        url_domain = self.get_url_domain(url)
+        for i in url_list:
+            i_domain = self.get_url_domain(i)
+            if url_domain != i_domain:
+                temp.append(i_domain)            
+        return temp
+
     def get_url_domain(self, url):
         """Get domain name (example.com) from a url"""
         parsed_url = urlparse(url)
@@ -117,6 +127,13 @@ class text_processor:
     def domain_check(self, url1, url2):
         """Check if url is from the same domain"""
         if self.get_url_domain(url1) == self.get_url_domain(url2):
+            return True
+        else:
+            return False
+        
+    def picture_check(self, url):
+        """Check if url is a picture"""
+        if re.search(r'\.(jpg|jpeg|png|gif)$', url):
             return True
         else:
             return False
