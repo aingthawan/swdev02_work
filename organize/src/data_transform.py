@@ -16,7 +16,7 @@ class data_transform:
 
     def update_web(self, url, raw_html):
         # check if url exist in the table
-        if not self.rm.url_exist_check(url):
+        if not self.mm.url_exist_check(url):
             all_word_list = self.tp.clean_raw(raw_html)
             all_url_list = self.tp.scrape_all_urls(raw_html)
             all_ref_domain_list = self.tp.get_ref_domain(url, all_url_list)
@@ -39,3 +39,24 @@ class data_transform:
         else:
             print("data_transform : URL is not accessible")
             return    
+        
+    def remove_by_url(self, url):
+        """remove the data from the database"""
+        temp_datarow = self.mm.fetch_data_by_url(url)
+        self.mm.remove_web_data(temp_datarow['Web_ID'])
+        self.mm.uncount_ref_domain(temp_datarow['Ref_To'])
+        self.mm.remove_inverted_index(temp_datarow['Web_ID'], temp_datarow['All_Word'])
+        # remove cache
+        # self.dp.removeTermInCache(temp_datarow['All_Word'])
+    
+    def remove_by_id(self, web_id):
+        """remove the data from the database"""
+        temp_datarow = self.mm.fetch_data_by_id(web_id)
+        # if data is not None
+        if temp_datarow is not None:
+            self.mm.remove_web_data(temp_datarow['Web_ID'])
+            self.mm.uncount_ref_domain(temp_datarow['Ref_To'])
+            self.mm.remove_inverted_index(temp_datarow['Web_ID'], temp_datarow['All_Word'])
+        else:
+            # print("Data with ID : ", web_id  ," not found in database")
+            pass

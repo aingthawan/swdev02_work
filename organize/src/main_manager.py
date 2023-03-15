@@ -85,7 +85,7 @@ class main_manager:
                 inverted_dict = eval(result[1])
                 inverted_dict[web_id] = count
                 inverted_dict = str(inverted_dict)
-                self.cursor.execute(f"UPDATE inverted_index SET document_freq = document_freq + 1, inverted_Dict = '{inverted_dict}' WHERE Word = '{word}'")
+                self.cursor.execute(f"UPDATE inverted_index SET document_freq = '{len(inverted_dict)}', inverted_Dict = '{inverted_dict}' WHERE Word = '{word}'")
             else:
                 self.cursor.execute(f"INSERT INTO inverted_index (word, document_freq, inverted_dict) VALUES ('{word}', 1, '{{{web_id}:{count}}}')")
         self.conn.commit()
@@ -96,7 +96,6 @@ class main_manager:
         ID_list_str = ",".join(ID_list)
         self.cursor.execute("INSERT INTO search_cache VALUES (?, ?)", (query_list_str, ID_list_str))
         self.conn.commit()
-    
 
     # Remover Methods
 
@@ -105,19 +104,27 @@ class main_manager:
         self.cursor.execute("DELETE FROM web_data WHERE web_id = ?", (web_id,))
         self.conn.commit()
     
-    def remove_inverted_index(self, web_id, list_of_words):
-        """modify inverted_index table when a web page is removed"""
-        for word in list_of_words:
+    # def remove_inverted_index(self, web_id, list_of_words):
+    #     """modify inverted_index table when a web page is removed"""
+    #     for word in list_of_words:
+    #         self.cursor.execute("SELECT inverted_dict FROM inverted_index WHERE word=?", (word,))
+    #         inverted_dict = eval(self.cursor.fetchone()[0])
+    #         inverted_dict.pop(web_id)
+    #         self.cursor.execute("UPDATE inverted_index SET document_freq=?, inverted_dict=? WHERE Word=?", (len(inverted_dict), str(inverted_dict), word))
+    #         self.conn.commit()
+    def remove_inverted_index(self, web_id, words):
+        """Remove id from indexing and reduce docsfreq"""
+        for word in words:
             self.cursor.execute("SELECT inverted_dict FROM inverted_index WHERE word=?", (word,))
             inverted_dict = eval(self.cursor.fetchone()[0])
             inverted_dict.pop(web_id, None)
-            self.cursor.execute(f"UPDATE inverted_index SET document_freq=document_freq-1, inverted_Dict=? WHERE Word=?", (str(inverted_dict), word))
+            self.cursor.execute(f"UPDATE inverted_index SET document_freq=?, inverted_dict=? WHERE word=?", (len(inverted_dict), str(inverted_dict), word))
         self.conn.commit()
 
     def uncount_ref_domain(self, domain_list):
         """Uncount reference count of a domain when a web page is removed"""
         for domain in domain_list:
-            self.cursor.execute(f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'")
+            self.cursor.execute(f"UPDATE reference_domain SET ref_count = ref_count - 1 WHERE domain_name = '{domain}'")
         self.conn.commit()
 
     def fetch_data_by_url(self, url):
@@ -126,10 +133,10 @@ class main_manager:
         result = self.cursor.fetchone()
         if result:
             return {
-                'Web_ID' : result[0],
+                'Web_ID' : int(result[0]),
                 'URL' : result[1],
-                'All_Word' : result[2].split(' , '),
-                'Ref_To' : result[3].split(' , ')
+                'All_Word' : result[2].split(','),
+                'Ref_To' : result[3].split(',')
             }
         else:
             return None
@@ -140,10 +147,10 @@ class main_manager:
         result = self.cursor.fetchone()
         if result:
             return {
-                'Web_ID' : result[0],
+                'Web_ID' : int(result[0]),
                 'URL' : result[1],
-                'All_Word' : result[2].split(' , '),
-                'Ref_To' : result[3].split(' , ')
+                'All_Word' : result[2].split(','),
+                'Ref_To' : result[3].split(',')
             }
         else:
             return None
