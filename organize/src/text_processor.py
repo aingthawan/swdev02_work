@@ -105,3 +105,18 @@ class text_processor:
             }
         else:
             return None
+        
+    def get_url_domain(self, url):
+        """Get domain name (example.com) from a url"""
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc
+        if domain.startswith('www.'):
+            domain = domain[4:]
+        return domain
+    
+    def domain_check(self, url1, url2):
+        """Check if url is from the same domain"""
+        if self.get_url_domain(url1) == self.get_url_domain(url2):
+            return True
+        else:
+            return False

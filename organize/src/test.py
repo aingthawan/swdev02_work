@@ -1,33 +1,20 @@
-import time
-import threading
+import pickle
 
-paused = False
+path = "organize\\pickle_state\\"
+pickle_file = "test_spider_state.pkl"
 
-def pingpong():
-    while True:
-        if not paused:
-            print("pingpong")
-            time.sleep(1)
-
-def handle_command():
-    global paused
-    while True:
-        command = input("Get command:")
-        if command == "p":
-            paused = True
-            print("pingpong paused")
-            time.sleep(5)  # sleep for 5 seconds
-        elif command == "c":
-            paused = False
-            print("pingpong continued")
-        else:
-            print("invalid command")
-
-if __name__ == "__main__":
-    # start pingpong
-    threading.Thread(target=pingpong).start()
+# Define some variables to save
+x = 42
+y = [1, 2, 3, 4, 5]
+starter = ["https://petapixel.com/2023/03/03/apples-29-year-old-landmark-quicktake-100-camera-falters-in-2023/",]
+# Save the variables to a file
+with open(path+pickle_file, 'wb') as f:
+    pickle.dump(starter, f)
     
-    print("pingpong started")
-    
-    # start command handler
-    threading.Thread(target=handle_command).start()
+# Load the variables from the file
+with open(path+pickle_file, 'rb') as f:
+    starter = pickle.load(f)
+
+# Use the variables in the program
+# x += 1
+print(starter)
