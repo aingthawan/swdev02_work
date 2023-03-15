@@ -39,8 +39,9 @@ class spiderman:
                 # check if url in starter
                 if url in starter:
                     starter.remove(url)
-                # append links to starter
-                starter.extend(links)
+                # append links to starter, if not exceed limit in next depth
+                if depth + 1 <= limit:
+                    starter.extend(links)
                 
                 while paused:
                     os.system("cls")
@@ -65,7 +66,7 @@ class spiderman:
             else:
                 pass
         else:
-            pass    
+            return 
 
 def job_controller():
     global paused
@@ -91,8 +92,10 @@ def job_controller():
 def peter_parker():
     peter = spiderman()
     for url in starter:
-        peter.crawl_link(url, 1, 2)
+        peter.crawl_link(url, 1, 1)
+    print("Spiderman is done!")
     del peter
+    return sys.exit()
     
 
 starter = ["https://petapixel.com/2023/03/03/apples-29-year-old-landmark-quicktake-100-camera-falters-in-2023/",]
@@ -115,8 +118,14 @@ if __name__ == "__main__":
             starter = pickle.load(f)
     
     # separate thread for peter_parker then continue
-    threading.Thread(target=peter_parker).start()
+    peter = threading.Thread(target=peter_parker).start()
     
     print("Spiderman is on the job!")
     
-    threading.Thread(target=job_controller).start()
+    job = threading.Thread(target=job_controller).start()
+    
+    if peter.is_alive():        
+        peter.join()
+    else:
+        sys.exit()
+    
