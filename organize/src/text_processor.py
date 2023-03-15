@@ -112,7 +112,7 @@ class text_processor:
         url_domain = self.get_url_domain(url)
         for i in url_list:
             i_domain = self.get_url_domain(i)
-            if url_domain != i_domain:
+            if (url_domain != i_domain) and (i_domain not in temp):
                 temp.append(i_domain)            
         return temp
 

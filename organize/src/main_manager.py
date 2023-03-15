@@ -96,4 +96,54 @@ class main_manager:
         ID_list_str = ",".join(ID_list)
         self.cursor.execute("INSERT INTO search_cache VALUES (?, ?)", (query_list_str, ID_list_str))
         self.conn.commit()
-    # def relate_cache_remover(self, word_list):
+    
+
+    # Remover Methods
+
+    def remove_web_data(self, web_id):
+        """Remove web page's information from web_data table"""
+        self.cursor.execute("DELETE FROM web_data WHERE web_id = ?", (web_id,))
+        self.conn.commit()
+    
+    def remove_inverted_index(self, web_id, list_of_words):
+        """modify inverted_index table when a web page is removed"""
+        for word in list_of_words:
+            self.cursor.execute("SELECT inverted_dict FROM inverted_index WHERE word=?", (word,))
+            inverted_dict = eval(self.cursor.fetchone()[0])
+            inverted_dict.pop(web_id, None)
+            self.cursor.execute(f"UPDATE inverted_index SET document_freq=document_freq-1, inverted_Dict=? WHERE Word=?", (str(inverted_dict), word))
+        self.conn.commit()
+
+    def uncount_ref_domain(self, domain_list):
+        """Uncount reference count of a domain when a web page is removed"""
+        for domain in domain_list:
+            self.cursor.execute(f"UPDATE Reference_Domain SET Ref_Count = Ref_Count - 1 WHERE Domain_Name = '{domain}'")
+        self.conn.commit()
+
+    def fetch_data_by_url(self, url):
+        """get data from row by url"""
+        self.cursor.execute("SELECT web_id, URL, all_word, ref_to FROM web_data WHERE url=?", (url,))
+        result = self.cursor.fetchone()
+        if result:
+            return {
+                'Web_ID' : result[0],
+                'URL' : result[1],
+                'All_Word' : result[2].split(' , '),
+                'Ref_To' : result[3].split(' , ')
+            }
+        else:
+            return None
+
+    def fetch_data_by_id(self, web_id):
+        """get data from row by id"""
+        self.cursor.execute("SELECT web_id, url, all_word, ref_to FROM web_data WHERE web_id=?", (web_id,))
+        result = self.cursor.fetchone()
+        if result:
+            return {
+                'Web_ID' : result[0],
+                'URL' : result[1],
+                'All_Word' : result[2].split(' , '),
+                'Ref_To' : result[3].split(' , ')
+            }
+        else:
+            return None
