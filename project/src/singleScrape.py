@@ -55,24 +55,12 @@ class pageScrapers:
     # tested
     def scrape_raw_text(self, html_text):
         """Return raw text string from bs4 boject"""
-        # soup = BeautifulSoup(html_text, 'html.parser')
-        # return soup.get_text()
-        # Parse the HTML using BeautifulSoup
         soup = BeautifulSoup(html_text, 'html.parser')
         # Extract the text content from the HTML
         text_content = soup.get_text()        
         # Remove any leading or trailing whitespace from the text content
         text_content = text_content.strip()
         return text_content
-    
-    # def scrape_all_urls(self, html_text):
-    #     soup = BeautifulSoup(html_text, 'html.parser')
-    #     urls = []
-    #     for link in soup.find_all('a'):
-    #         url = link.get('href')
-    #         if url and re.match("^(http://|https://)", url) and not re.search(".(jpg|jpeg|png|gif)$", url):
-    #             urls.append(url)
-    #     return list(set(urls))
     
     # tested
     def scrape_all_urls(self, html_text):

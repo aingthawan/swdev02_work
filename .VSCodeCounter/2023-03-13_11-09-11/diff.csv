@@ -1,0 +1,14 @@
+"filename", "language", "Markdown", "SQL", "JSON", "CSV", "comment", "blank", "total"
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\README.md", "Markdown", -59, 0, 0, 0, 0, -10, -69
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\backup\database_elt_main_backup.db", "SQL", 0, -14002, 0, 0, 0, -160, -14162
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\database_elt_main.db", "SQL", 0, -14074, 0, 0, 0, -160, -14234
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_dev\database_elt_main_small copy.db", "SQL", 0, -626, 0, 0, 0, -8, -634
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_dev\database_elt_main_small.db", "SQL", 0, -816, 0, 0, 0, -4, -820
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_dev\database_elt_raw_small.db", "SQL", 0, -7949, 0, 0, -77, -776, -8802
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_dev\dbms.ipynb", "JSON", 0, 0, -191, 0, 0, -1, -192
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_spatial\places.ipynb", "JSON", 0, 0, -395, 0, 0, -1, -396
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_spatial\places_freq_test1.csv", "CSV", 0, 0, 0, -417, 0, -1, -418
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_spatial\places_freq_test2.csv", "CSV", 0, 0, 0, -161, 0, -1, -162
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_spatial\places_freq_test3.csv", "CSV", 0, 0, 0, -162, 0, -1, -163
+"c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_test\test_linkChecker_database.db", "SQL", 0, -6, 0, 0, 0, 0, -6
+"Total", "-", -59, -37473, -586, -740, -77, -1123, -40058

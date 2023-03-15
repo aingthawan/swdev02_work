@@ -1,0 +1,77 @@
+Date : 2023-03-13 11:08:47
+Directory : c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project
+Total : 38 files,  40274 codes, 902 comments, 1546 blanks, all 42722 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| SQL      |          6 |     37,473 |         77 |      1,108 |     38,658 |
+| Python   |         26 |      1,416 |        825 |        423 |      2,664 |
+| CSV      |          3 |        740 |          0 |          3 |        743 |
+| JSON     |          2 |        586 |          0 |          2 |        588 |
+| Markdown |          1 |         59 |          0 |         10 |         69 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                             | files      | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                |         38 |     40,274 |        902 |      1,546 |     42,722 |
+| . (Files)                                                                                                        |          1 |         59 |          0 |         10 |         69 |
+| database                                                                                                         |         11 |     38,799 |         77 |      1,113 |     39,989 |
+| database (Files)                                                                                                 |          1 |     14,074 |          0 |        160 |     14,234 |
+| database\backup                                                                                                  |          1 |     14,002 |          0 |        160 |     14,162 |
+| database\for_dev                                                                                                 |          4 |      9,582 |         77 |        789 |     10,448 |
+| database\for_spatial                                                                                             |          4 |      1,135 |          0 |          4 |      1,139 |
+| database\for_test                                                                                                |          1 |          6 |          0 |          0 |          6 |
+| src                                                                                                              |         26 |      1,416 |        825 |        423 |      2,664 |
+| src (Files)                                                                                                      |         20 |      1,137 |        655 |        324 |      2,116 |
+| src\.ipynb_checkpoints                                                                                           |          5 |        258 |        167 |         90 |        515 |
+| src\proxy                                                                                                        |          1 |         21 |          3 |          9 |         33 |
++------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                                                         | language | code       | comment    | blank      | total      |
++------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\README.md                                          | Markdown |         59 |          0 |         10 |         69 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\backup\database_elt_main_backup.db        | SQL      |     14,002 |          0 |        160 |     14,162 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\database_elt_main.db                      | SQL      |     14,074 |          0 |        160 |     14,234 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_dev\database_elt_main_small copy.db   | SQL      |        626 |          0 |          8 |        634 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_dev\database_elt_main_small.db        | SQL      |        816 |          0 |          4 |        820 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_dev\database_elt_raw_small.db         | SQL      |      7,949 |         77 |        776 |      8,802 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_dev\dbms.ipynb                        | JSON     |        191 |          0 |          1 |        192 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_spatial\places.ipynb                  | JSON     |        395 |          0 |          1 |        396 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_spatial\places_freq_test1.csv         | CSV      |        417 |          0 |          1 |        418 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_spatial\places_freq_test2.csv         | CSV      |        161 |          0 |          1 |        162 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_spatial\places_freq_test3.csv         | CSV      |        162 |          0 |          1 |        163 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\database\for_test\test_linkChecker_database.db     | SQL      |          6 |          0 |          0 |          6 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\.ipynb_checkpoints\ELT_transform-checkpoint.py | Python   |         93 |         28 |         32 |        153 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\.ipynb_checkpoints\cleanRawText-checkpoint.py  | Python   |         19 |         24 |          7 |         50 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\.ipynb_checkpoints\dataPipeline-checkpoint.py  | Python   |         76 |         66 |         32 |        174 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\.ipynb_checkpoints\linkChecker-checkpoint.py   | Python   |         28 |         20 |         11 |         59 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\.ipynb_checkpoints\singleScrape-checkpoint.py  | Python   |         42 |         29 |          8 |         79 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\ELT_scrape.py                                  | Python   |         62 |         59 |         40 |        161 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\ELT_searching.py                               | Python   |        154 |         95 |         34 |        283 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\ELT_transform.py                               | Python   |        124 |         58 |         36 |        218 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\basic_gui.py                                   | Python   |        131 |         76 |         25 |        232 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\cleanRawText.py                                | Python   |         49 |         37 |         12 |         98 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\dataPipeline.py                                | Python   |        101 |         57 |         19 |        177 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\linkChecker.py                                 | Python   |         48 |         32 |         15 |         95 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\proxy\proxy_checker.py                         | Python   |         21 |          3 |          9 |         33 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\rawKeeper_ELT.py                               | Python   |         22 |         14 |          8 |         44 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\singleScrape.py                                | Python   |         37 |         54 |          9 |        100 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_ELT_scrape.py                             | Python   |         29 |         12 |         10 |         51 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_ELT_searching.py                          | Python   |         33 |          6 |          8 |         47 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_ELT_transform_main_database.py            | Python   |         18 |          4 |          8 |         30 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_ELT_transform_raw_database.py             | Python   |         28 |          8 |          8 |         44 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_LinkChecker_access.py                     | Python   |         20 |          2 |          7 |         29 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_cleanRawText.py                           | Python   |         41 |         17 |         11 |         69 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_dataPipeline_insert_side.py               | Python   |        111 |         36 |         20 |        167 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_dataPipeline_remove_side.py               | Python   |         29 |          9 |         13 |         51 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_linkChecker.py                            | Python   |         42 |         34 |         14 |         90 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_rawKeeper_ELT.py                          | Python   |         29 |         19 |         14 |         62 |
+| c:\Users\aingt\OneDrive\Documents\GitHub\swdev02_work\project\src\test_singleScrape.py                           | Python   |         29 |         26 |         13 |         68 |
+| Total                                                                                                            |          |     40,274 |        902 |      1,546 |     42,722 |
++------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

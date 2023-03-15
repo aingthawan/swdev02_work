@@ -22,7 +22,8 @@ import re
 import spacy
 from nltk.corpus import stopwords
 from bs4 import BeautifulSoup
-
+import xml.etree.ElementTree as ET
+    
 class TextCleaners:
     """Designed for Inverted Indexing"""
     def __init__(self):
@@ -83,12 +84,12 @@ class TextCleaners:
                     raw_text += " ".join(element.stripped_strings) + " "
         except:
             # If input is not HTML, try processing it as XML
-            import xml.etree.ElementTree as ET
             root = ET.fromstring(raw_text)
             raw_text = ""
 
             # Only extract text from specific tags (e.g. p, h1, etc.)
-            for tag in ['p', 'h1', 'h2', 'h3', 'article']:
+            # for tag in ['p', 'h1', 'h2', 'h3', 'article']:
+            for tag in ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'article']:
                 elements = root.findall(tag)
                 for element in elements:
                     raw_text += element.text + " "

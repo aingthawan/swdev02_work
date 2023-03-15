@@ -166,7 +166,6 @@ def data_processing():
     main_dir = directory + "database_elt_main_small.db"
     
     rawd = raw_database(raw_dir)
-    mdb = main_database(main_dir)
     
     try:
         while True:
@@ -179,6 +178,7 @@ def data_processing():
                 continue
 
             else:
+                mdb = main_database(main_dir)
                 print("Processing data...")
                 start_time = time.time()
                 url = row_temp[0]
@@ -199,8 +199,11 @@ def data_processing():
     # if keyboard interrupt, close the connection 
     except KeyboardInterrupt:
         print("closing connection")
+        try:
+            mdb.close()
+        except:
+            pass
         rawd.close()
-        mdb.close()
         exit()
 
         

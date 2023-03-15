@@ -227,6 +227,7 @@ class invertedIndexSearch:
     def full_search(self, user_query):
         """return a list of url from a user query"""
         cleaned_query = self.queryCleaner(user_query)
+        print("Cleaned Search Query", cleaned_query)
         if cleaned_query != None:
             # check if the query is in the cache
             load_from_cache = self.search_cache_checker(cleaned_query)
@@ -257,8 +258,8 @@ if __name__ == "__main__":
 
     os.system('cls')
     print("\nWelcome to the Search Engine\nSetting up . . .\n\n")
-    file_name = 'database_elt_main_small.db'
-    database_file = 'project\\database\\for_dev\\' + file_name
+    file_name = 'database_elt_main.db'
+    database_file = 'project\\database\\' + file_name
     # make a loop for searching until user want to exit
     # using try and except for error handling keyboard interrupt to exit the program
     iis = invertedIndexSearch(database_file)
