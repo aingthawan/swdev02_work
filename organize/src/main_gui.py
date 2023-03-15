@@ -1,10 +1,13 @@
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget
+from PyQt5.QtWebEngineWidgets import QWebEngineView # pip install PyQtWebEngine
 from searcher import invertedIndexSearch
-from data_transform import *
 import time
 import webbrowser
+import folium # pip install folium
+from data_transform import *
+import threading
 
 class SearchWidget(QWidget):
     def __init__(self):
@@ -14,7 +17,8 @@ class SearchWidget(QWidget):
         super().__init__()
 
         self.setWindowTitle("Sapida Search GUI")
-        self.resize(400, 600)
+        # full screen size
+        self.window_width, self.window_height = 1200, 400
         
         left_widget_width = 600
         # Create widgets
@@ -36,7 +40,7 @@ class SearchWidget(QWidget):
         self.result_len = QLabel("")
         self.log_label = QLabel("Log:")
         self.log_area = QtWidgets.QListWidget()
-        self.log_area.setFixedHeight(100) # set box size
+        self.log_area.setFixedHeight(200) # set box size
         self.log_area.setFixedWidth(300)
 
         # Set widget properties
@@ -182,21 +186,15 @@ class SearchWidget(QWidget):
             self.log_area.addItem(QtWidgets.QListWidgetItem("Please enter a url"))
             return
         else:
-            try:
-                # create the data pipeline object
-                tf = data_transform(self.database_file, self.raw_database_file) 
-                tf.direct_update_web(input_url)
-                del tf
-                # clear the insert line edit
-                self.insert_input.clear()
-                # display log in the log area
-                self.log_area.addItem(QtWidgets.QListWidgetItem("Insert Process completed"))
-                return
-            except Exception as e:
-                self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to insert"))
-                # self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
-                print("Insert Error : ", e)
-                return
+            # create the data pipeline object
+            tf = data_transform(self.database_file, self.raw_database_file) 
+            tf.direct_update_web(input_url)
+            del tf
+            # clear the insert line edit
+            self.insert_input.clear()
+            # display log in the log area
+            self.log_area.addItem(QtWidgets.QListWidgetItem("Insert Process completed"))
+            return
         
     def remove(self):
         """remove function"""
@@ -227,4 +225,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     search_widget = SearchWidget()
     search_widget.show()
-    sys.exit(app.exec_())
+    try:
+        sys.exit(app.exec_())
+    except SystemExit:
+        print('Closing Window...')

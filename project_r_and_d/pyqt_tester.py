@@ -1,37 +1,50 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSizePolicy, QVBoxLayout, QWidget
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-import numpy as np
+import io
+import folium # pip install folium
+from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWebEngineWidgets import QWebEngineView # pip install PyQtWebEngine
 
-class MainWindow(QMainWindow):
-
+"""
+Folium in PyQt5
+"""
+class MyApp(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle('Folium in PyQt Example')
+        self.window_width, self.window_height = 1200, 400
+        self.setMinimumSize(self.window_width, self.window_height)
 
-        # Set up the main window
-        self.setWindowTitle("Spatial Map Example")
-        self.setGeometry(100, 100, 800, 600)
-
-        # Create a Matplotlib figure and canvas
-        self.fig = Figure()
-        self.canvas = FigureCanvas(self.fig)
-
-        # Create a scatter plot of spatial data
-        ax = self.fig.add_subplot(111)
-        x = np.random.rand(100)
-        y = np.random.rand(100)
-        ax.scatter(x, y)
-
-        # Add the canvas to the main window
         layout = QVBoxLayout()
-        layout.addWidget(self.canvas)
-        widget = QWidget()
-        widget.setLayout(layout)
-        self.setCentralWidget(widget)
+        self.setLayout(layout)
 
-if __name__ == "__main__":
+        coordinate = (37.8199286, -122.4782551)
+        m = folium.Map(
+        	tiles="cartodbpositron",
+        	zoom_start=110,
+        	# location=coordinate
+        )
+
+        # save map data to data object
+        data = io.BytesIO()
+        m.save(data, close_file=False)
+
+        webView = QWebEngineView()
+        webView.setHtml(data.getvalue().decode())
+        layout.addWidget(webView)
+
+
+if __name__ == '__main__':
     app = QApplication(sys.argv)
-    mainWindow = MainWindow()
-    mainWindow.show()
-    sys.exit(app.exec_())
+    app.setStyleSheet('''
+        QWidget {
+            font-size: 35px;
+        }
+    ''')
+    
+    myApp = MyApp()
+    myApp.show()
+
+    try:
+        sys.exit(app.exec_())
+    except SystemExit:
+        print('Closing Window...')

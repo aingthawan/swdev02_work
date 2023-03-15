@@ -42,12 +42,16 @@ class data_transform:
         
     def remove_by_url(self, url):
         """remove the data from the database"""
-        temp_datarow = self.mm.fetch_data_by_url(url)
-        self.mm.remove_web_data(temp_datarow['Web_ID'])
-        self.mm.uncount_ref_domain(temp_datarow['Ref_To'])
-        self.mm.remove_inverted_index(temp_datarow['Web_ID'], temp_datarow['All_Word'])
-        # remove cache
-        # self.dp.removeTermInCache(temp_datarow['All_Word'])
+        if self.mm.url_exist_check(url):
+            temp_datarow = self.mm.fetch_data_by_url(url)
+            self.mm.remove_web_data(temp_datarow['Web_ID'])
+            self.mm.uncount_ref_domain(temp_datarow['Ref_To'])
+            self.mm.remove_inverted_index(temp_datarow['Web_ID'], temp_datarow['All_Word'])
+            # remove cache
+            # self.dp.removeTermInCache(temp_datarow['All_Word'])
+        else:
+            print("URL not found in database")
+            return
     
     def remove_by_id(self, web_id):
         """remove the data from the database"""
