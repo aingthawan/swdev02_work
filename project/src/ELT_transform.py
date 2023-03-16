@@ -30,7 +30,7 @@ class raw_database:
     # To use this class, you need to already have a database with a table called rawMaterial
     def __init__(self, database):
         """initialize the database"""
-        self.conn = sqlite3.connect(database)
+        self.conn = sqlite3.connect(database, timeout=10)
         self.cur = self.conn.cursor()
         
     # tested
@@ -57,8 +57,11 @@ class raw_database:
 
     def close(self):
         """close the connection"""
-        self.conn.commit()
-        self.conn.close()
+        try:
+            self.conn.commit()
+            self.conn.close()
+        except:
+            pass
         
 
 class main_database:
@@ -161,10 +164,9 @@ class main_database:
 
 def data_processing():
     
-    directory = "project\database\\for_dev\\"
+    directory = "project\\database\\for_dev\\"
     raw_dir = directory + "database_elt_raw_small.db"
     main_dir = directory + "database_elt_main_small.db"
-    
     rawd = raw_database(raw_dir)
     mdb = main_database(main_dir)
     
@@ -184,16 +186,13 @@ def data_processing():
                 url = row_temp[0]
                 raw = row_temp[1]
                 mdb.updateLink(url, raw)
-                mdb.close()
                 rawd.delete_row(url)
-                rawd.close()
                 print("Data processed. Time taken: %s seconds" % (time.time() - start_time))
     # if there is any error, remove the top row from raw database then continue
     except Exception as e:
         print(e)
         print("Error occured. Removing data from raw database...")
         rawd.delete_row(url)
-        rawd.close()
         print("Data removed. Continuing...")
         data_processing()
     # if keyboard interrupt, close the connection 

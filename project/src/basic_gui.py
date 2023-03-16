@@ -8,9 +8,9 @@ import webbrowser
 
 class SearchWidget(QWidget):
     def __init__(self):
-        file_name = 'database_elt_main.db'
+        file_name = 'database_elt_main_small.db'
         # file_name = 'database_elt_main_small.db'
-        self.database_file = 'project\database\\' + file_name
+        self.database_file = 'project\\database\\for_dev\\' + file_name
         # self.database_file = 'project\database\\for_dev\\' + file_name
         
         super().__init__()

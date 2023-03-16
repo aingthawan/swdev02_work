@@ -54,7 +54,7 @@ class get_raw_content:
                                 print("not from the same domain")
                                 pass
                         else:
-                            print("Limit depth reached")
+                            # print("Limit depth reached")
                             pass
             else:
                 pass
@@ -96,15 +96,14 @@ class get_raw_content:
 if __name__ == "__main__":
 
     tinderURL = {
-        "https://photographylife.com/integrating-jpegmini-pro-to-lightroom-workflow",
-        "https://placesjournal.org/article/orphan-wells-oil-infrastructure-in-louisiana/",
-        "https://expertphotography.com/best-retro-camera/",
-        "https://www.newscientist.com/article/mg25634130-200-a-gift-from-nature-geothermal-energy-in-tuscanys-valle-del-diavolo/",
-        "https://petapixel.com/2023/03/03/apples-29-year-old-landmark-quicktake-100-camera-falters-in-2023/",
+        # "https://photographylife.com/integrating-jpegmini-pro-to-lightroom-workflow",
+        # "https://placesjournal.org/article/orphan-wells-oil-infrastructure-in-louisiana/",
+        # "https://expertphotography.com/best-retro-camera/",
+        # "https://www.newscientist.com/article/mg25634130-200-a-gift-from-nature-geothermal-energy-in-tuscanys-valle-del-diavolo/",
         # "https://www.wired.com/gallery/best-photo-video-accessories-for-iphone-android/",
         # "https://www.dpreview.com/news/7860893940/film-friday-meet-luminar-100-a-new-35mm-color-film-stock-made-kodak-aerocolor-iv-aerial-film",
-        # "https://fstoppers.com/film/most-overrated-and-underrated-film-cameras-2021-563868",
-        # "https://iso.500px.com/11-tips-photographers-shoot-film-analog/",
+        "https://fstoppers.com/film/most-overrated-and-underrated-film-cameras-2021-563868",
+        "https://www.dpreview.com/articles/9885954923/canon-eos-r8-hands-on",
         # "https://www.studiobinder.com/blog/how-to-shoot-film-photography/",
         # "https://iso.500px.com/how-to-increase-your-prices-as-a-freelance-photographer/"
     }
@@ -115,7 +114,7 @@ if __name__ == "__main__":
 
     grc = get_raw_content(db_path+rawfilename, db_path+mainfilename)
     start_depth = 1
-    limit_depth = 1
+    limit_depth = 3
 
     for link in (tinderURL):
     # for link in tinderURL:

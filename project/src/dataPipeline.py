@@ -17,7 +17,7 @@ class dataPipelines:
     
     def __init__(self, database_file):
         """Input database file"""
-        self.conn = sqlite3.connect(database_file)
+        self.conn = sqlite3.connect(database_file, timeout=10)
         self.cursor = self.conn.cursor()
         self.createTable()
     

@@ -12,7 +12,7 @@ class invertedIndexSearch:
     def __init__(self, database_file):
         """initialize the database"""
         self.tc = TextCleaners()
-        self.conn = sqlite3.connect(database_file)
+        self.conn = sqlite3.connect(database_file, timeout=10)
         self.curr = self.conn.cursor()
         self.create_cache_table()
 
