@@ -11,7 +11,7 @@ class spiderman:
     
     def __init__(self):
         global starter
-        self.rm = raw_manager("organize\\database\\raw.db")
+        self.rm = raw_manager("organize\\src\\database\\raw_test.db")
         self.tp = text_processor()
     
     def __del__(self):
@@ -105,7 +105,7 @@ starter = [ # "https://petapixel.com/2023/03/03/apples-29-year-old-landmark-quic
 paused = False # Global variable for pausing
 quitting = False # Global variable for quitting
 
-path = "organize\\pickle_state\\"
+path = "organize\\src\\pickle_state\\"
 pickle_file = "test_spider_state.pkl"
 
 if __name__ == "__main__":    

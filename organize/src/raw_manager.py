@@ -50,8 +50,12 @@ class raw_manager:
             print("raw_manager : URL not found in the table")
             pass
 
-    def fetch_raw(self, url):
+    def fetch_raw(self):
         """Fetch a raw content from the database, 
         return raw content (url , raw_content)
         if nothing left, return None
+        Example Output:
+        ('https://www.35mmc.com/10/03/2018/nikon-fm3a-review/', 'test')
         """
+        self.cursor.execute("SELECT * FROM raw_data LIMIT 1")
+        return self.cursor.fetchone()

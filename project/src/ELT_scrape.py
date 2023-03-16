@@ -110,10 +110,6 @@ class get_raw_content:
 if __name__ == "__main__":
 
     tinderURL = [
-        # "https://photographylife.com/integrating-jpegmini-pro-to-lightroom-workflow",
-        # "https://placesjournal.org/article/orphan-wells-oil-infrastructure-in-louisiana/",
-        # "https://expertphotography.com/best-retro-camera/",
-        # "https://www.newscientist.com/article/mg25634130-200-a-gift-from-nature-geothermal-energy-in-tuscanys-valle-del-diavolo/",
         "https://petapixel.com/2023/03/03/apples-29-year-old-landmark-quicktake-100-camera-falters-in-2023/",
     ]
 
