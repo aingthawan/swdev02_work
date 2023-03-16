@@ -25,6 +25,7 @@ class data_transform:
             self.mm.update_web_data(new_id, url, all_word_list, all_ref_domain_list)
             self.mm.update_reference_domain(all_ref_domain_list)
             self.mm.update_inverted_index(new_id, all_word_list)
+            self.mm.remove_relate_cache(all_word_list)
             return
         else:
             print("data_transform : URL already exist in the raw database")
@@ -48,7 +49,7 @@ class data_transform:
             self.mm.uncount_ref_domain(temp_datarow['Ref_To'])
             self.mm.remove_inverted_index(temp_datarow['Web_ID'], temp_datarow['All_Word'])
             # remove cache
-            # self.dp.removeTermInCache(temp_datarow['All_Word'])
+            self.mm.remove_relate_cache(temp_datarow['All_Word'])
         else:
             print("URL not found in database")
             return
@@ -61,6 +62,7 @@ class data_transform:
             self.mm.remove_web_data(temp_datarow['Web_ID'])
             self.mm.uncount_ref_domain(temp_datarow['Ref_To'])
             self.mm.remove_inverted_index(temp_datarow['Web_ID'], temp_datarow['All_Word'])
+            self.mm.remove_relate_cache(temp_datarow['All_Word'])
         else:
             # print("Data with ID : ", web_id  ," not found in database")
             pass

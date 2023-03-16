@@ -127,6 +127,20 @@ class main_manager:
             self.cursor.execute(f"UPDATE reference_domain SET ref_count = ref_count - 1 WHERE domain_name = '{domain}'")
         self.conn.commit()
 
+    def remove_relate_cache(self, term_list):
+        """Check if term in the list is in cache, remove that cache row"""
+        self.cursor.execute("SELECT query_list FROM search_cache")
+        search_cache = self.cursor.fetchall()
+        # check all row in column Query_List if contain any term in term_list, 
+        # if yes, remove that row
+        for row in search_cache:
+            for term in term_list:
+                if term in row[0]:
+                    self.cursor.execute("DELETE FROM search_cache WHERE query_list=?", (row[0],))
+                    self.conn.commit() 
+        print("Cache is updated (Removed related term in cache)") 
+
+
     def fetch_data_by_url(self, url):
         """get data from row by url"""
         self.cursor.execute("SELECT web_id, URL, all_word, ref_to FROM web_data WHERE url=?", (url,))

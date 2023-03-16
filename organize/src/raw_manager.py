@@ -49,3 +49,9 @@ class raw_manager:
         except sqlite3.OperationalError:
             print("raw_manager : URL not found in the table")
             pass
+
+    def fetch_raw(self, url):
+        """Fetch a raw content from the database, 
+        return raw content (url , raw_content)
+        if nothing left, return None
+        """
