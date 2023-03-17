@@ -13,6 +13,7 @@ from singleScrape import *
 from urllib.parse import urlparse
 import sqlite3
 import time
+import sys
 
 
 # def word_frequency_dict(words_list):
@@ -163,6 +164,7 @@ class main_database:
     
 
 def data_processing():
+    global transform_status
     
     directory = "project\\database\\for_dev\\"
     raw_dir = directory + "database_elt_raw_small.db"
@@ -170,45 +172,54 @@ def data_processing():
     rawd = raw_database(raw_dir)
     mdb = main_database(main_dir)
     
-    try:
-        while True:
-            
-            row_temp = rawd.get_row()
-            
-            if row_temp is None:
-                print("Table is empty. Waiting for data...")
-                time.sleep(5)
-                continue
+    while True:
+        try:
+            while True:
+                
+                row_temp = rawd.get_row()
+                
+                if row_temp is None:
+                    print("Table is empty. Waiting for data...")
+                    time.sleep(5)
+                    # True is Done
+                    transform_status = True
+                    continue
 
-            else:
-                print("Processing data...")
-                start_time = time.time()
-                url = row_temp[0]
-                raw = row_temp[1]
-                mdb.updateLink(url, raw)
-                rawd.delete_row(url)
-                print("Data processed. Time taken: %s seconds" % (time.time() - start_time))
-    # if there is any error, remove the top row from raw database then continue
-    except Exception as e:
-        print(e)
-        print("Error occured. Removing data from raw database...")
-        rawd.delete_row(url)
-        print("Data removed. Continuing...")
-        data_processing()
-    # if keyboard interrupt, close the connection 
-    except KeyboardInterrupt:
-        print("closing connection")
-        rawd.close()
-        mdb.close()
-        exit()
-
+                else:
+                    print("Processing data...")
+                    start_time = time.time()
+                    url = row_temp[0]
+                    raw = row_temp[1]
+                    mdb.updateLink(url, raw)
+                    rawd.delete_row(url)
+                    print("Data processed. Time taken: %s seconds" % (time.time() - start_time))
+                    
+                    while transform_pause or transform_status:
+                        print("Paused Transform")
+                        time.sleep(1)
+                        if transform_quit or transform_status:
+                            print("Quitting Transform Process")
+                            rawd.close()
+                            mdb.close()
+                            sys.exit()
+                    
+        # if there is any error, remove the top row from raw database then continue
+        except Exception as e:
+            print(e)
+            print("Error occured. Removing data from raw database...")
+            rawd.delete_row(url)
+            print("Data removed. Continuing...")
+            # data_processing()
         
-        
-if __name__ == "__main__":    
-    try:
-        data_processing()
-    except KeyboardInterrupt:
-        print("Exiting program")
+def transform_start():
+    global transform_pause
+    global transform_quit 
+    global transform_status
+    transform_pause = False
+    transform_quit = False
+    transform_status = False
+    data_processing()
+    
 
 
 #  _._     _,-'""`-._
