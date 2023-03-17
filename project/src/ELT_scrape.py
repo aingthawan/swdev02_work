@@ -37,10 +37,11 @@ class get_raw_content:
                 if spider_quitting:
                     print("Spider is quitting")
                     # dump the list into the pickle file
-                    print("Dumping the list into the pickle file")
                     with open('tinderURL.pickle', 'wb') as f:
                         pickle.dump(tinderURL, f)
-                    sys.exit()                    
+                    print("Dumping the list into the pickle file")
+                    # print("\n\n\ntinderURL : ", tinderURL)
+                    return sys.exit()                    
             # ============================================
             if url in tinderURL:
                 # remove the url from the list
@@ -62,6 +63,7 @@ class get_raw_content:
                     else:
                         pass
 
+                    print(current_depth," Crawling: ", url)
                     # crawl all the back links
                     all_link = self.ps.scrape_all_urls(get_raw)
                     # put the link into the list tinderURL
@@ -70,7 +72,6 @@ class get_raw_content:
                         # check if the link is from the same domain and the current depth is less than the limit depth, then crawl the link
                         if (current_depth+1 <= limit_depth):
                             if (self.get_domain(link) == self.get_domain(url)):
-                                print("Crawling: ", link)
                                 self.crawl(link, current_depth + 1, limit_depth)
                             else:
                                 print("not from the same domain")
@@ -101,33 +102,19 @@ def spider_job():
 
     for link in (tinderURL):
     # for link in tinderURL:
+    # format {'url1':[current_depth,limit_depth], 'url2':[current_depth,limit_depth] }
         print("Crawling: ", link)
         grc.crawl(link, start_depth, limit_depth)
 
     print("\n\nDone\n\n")
     
     grc.close()
-
-
-spider_pause = False
-spider_quitting = False
-spider_status = False # False is not finished, True is finished
-tinderURL = [
-        "https://www.dpreview.com/articles/9885954923/canon-eos-r8-hands-on",
-    ]
+    return
 
 def spider():
     global tinderURL
-    try:
-        with open("project\\pickle_temp\\spider.pickle", "rb") as f:
-            tinderURL = pickle.load(f)
-    except:
-        with open("project\\pickle_temp\\spider.pickle", "wb") as f:
-            pickle.dump(tinderURL, f)
-        with open("project\\pickle_temp\\spider.pickle", "rb") as f:
-            tinderURL = pickle.load(f)
-    
     spider_job()
+    sys.exit()
 
 def spider_job_control():
     global spider_pause
@@ -135,8 +122,9 @@ def spider_job_control():
     global spider_status
     global tinderURL
     
+    global transform_status
     global transform_pause
-    global transform_quitting
+    global transform_quit
     while True:
         spider_command = input("Enter Spider command: ")
         if spider_command == "pause":
@@ -149,12 +137,31 @@ def spider_job_control():
             print("Spider quitting")
             spider_pause = True
             spider_quitting = True
-            transform_pause = True
-            transform_quitting = True
+            transform_stop()
+            sys.exit()
         else:
             print("Invalid command")
             
+            
+            
+spider_pause = False
+spider_quitting = False
+spider_status = False # False is not finished, True is finished
+tinderURL = [
+        "https://www.dpreview.com/news/9657627837/leica-announces-vario-elmar-sl-100-400-f5-6-3-and-1-4x-extender",
+    ]            
+            
 if __name__ == "__main__":
+    try:
+        with open("project\\pickle_temp\\spider.pickle", "rb") as f:
+            tinderURL = pickle.load(f)
+    except:
+        with open("project\\pickle_temp\\spider.pickle", "wb") as f:
+            pickle.dump(tinderURL, f)
+        with open("project\\pickle_temp\\spider.pickle", "rb") as f:
+            tinderURL = pickle.load(f)
+    print("\n\n\ntinderURL : ", tinderURL)
+    
     transform_job = threading.Thread(target=transform_start)
     transform_job.start()
     
@@ -164,4 +171,7 @@ if __name__ == "__main__":
     spider_thread = threading.Thread(target=spider)
     spider_thread.start()
     
-    print("Spider finished")
+    transform_job.join()
+    job_cont_thread.join()
+    spider_thread.join()
+    

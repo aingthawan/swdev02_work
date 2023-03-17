@@ -9,22 +9,13 @@ from linkChecker import *
 from dataPipeline import *
 from cleanRawText import *
 from singleScrape import *
+from ELT_scrape import *
 
 from urllib.parse import urlparse
 import sqlite3
 import time
 import sys
 
-
-# def word_frequency_dict(words_list):
-#     """Turn list of words into dictionary with word as key and frequency as value"""
-#     frequency_dict = {}
-#     for word in words_list:
-#         if word in frequency_dict:
-#             frequency_dict[word] += 1
-#         else:
-#             frequency_dict[word] = 1
-#     return frequency_dict    
 
 class raw_database:
     """class for getting the raw content from the database and remove"""
@@ -181,8 +172,14 @@ def data_processing():
                 if row_temp is None:
                     print("Table is empty. Waiting for data...")
                     time.sleep(5)
-                    # True is Done
-                    transform_status = True
+                    while transform_pause or transform_status:
+                        print("Paused Transform")
+                        time.sleep(1)
+                        if transform_quit or transform_status:
+                            print("Quitting Transform Process")
+                            rawd.close()
+                            mdb.close()
+                            sys.exit()
                     continue
 
                 else:
@@ -220,8 +217,10 @@ def transform_start():
     transform_status = False
     data_processing()
     
-
-
+def transform_stop():
+    global transform_status
+    transform_status = True
+    
 #  _._     _,-'""`-._
 # (,-.`._,'(       |\`-/|
 #     `-.-' \ )-`( , o o)  < Katze is cat in German
