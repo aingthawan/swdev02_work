@@ -1,13 +1,14 @@
 import sys
-from PyQt5 import QtWidgets
-from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget
-from PyQt5.QtWebEngineWidgets import QWebEngineView
-from ELT_searching import invertedIndexSearch
-from ELT_transform import main_database
 import time
-import webbrowser
+import json
 import folium
+import webbrowser
 import pandas as pd
+from PyQt5 import QtWidgets
+from ELT_transform import main_database
+from ELT_searching import invertedIndexSearch
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget
 
 class SearchWidget(QWidget):
     def __init__(self):
@@ -15,13 +16,17 @@ class SearchWidget(QWidget):
         
         file_name = 'database_elt_main.db'
         self.database_file = 'project\\database\\' + file_name        
+        self.folium_file = 'project\\database\\for_spatial\\folium_map.html'
+        
+        with open('project\\database\\for_spatial\\custom.geo.json', encoding='utf-8') as f:
+            # keep data in json format
+            self.world_data = json.load(f)
         
         # clean new map
         m = folium.Map(location=[10, 0], tiles='cartodbdark_matter', zoom_start=2)
-        m.save('project\\database\\for_spatial\\folium_map.html')
+        m.save(self.folium_file)
         self.webEngineView = QWebEngineView()
         self.load_html()
-        
         self.load_coor()
         
         self.setWindowTitle("Search GUI Basic v1.0")
@@ -140,23 +145,44 @@ class SearchWidget(QWidget):
             self.country_coordinate = pd.read_csv(f)
     
     def map_plotter(self, country_dict):
-        print("Plotting map...")
+        
         m = folium.Map(location=[10, 0], tiles='cartodbdark_matter', zoom_start=2)
-        # for all countries in the dictionary, add a marker to the map
+        
         for country, freq in country_dict.items():
-            # get the lat and long of the country
-            # print(country, freq)
             lat = self.country_coordinate[self.country_coordinate['country'] == country]['lat'].values[0]
             long = self.country_coordinate[self.country_coordinate['country'] == country]['long'].values[0]
-            folium.Marker([lat, long], popup=country.upper(), icon=folium.Icon(color="red", icon='info-sign')).add_to(m)
-        m.save('project\\database\\for_spatial\\folium_map.html')
+            # set marker for country name and frequency
+            if freq is max(country_dict.values()):
+                folium.Marker([lat, long], popup=(country).upper() + ' : ' + str(freq), icon=folium.Icon(color="red", icon='info-sign')).add_to(m)
+            else:
+                folium.Marker([lat, long], popup=country.upper(), icon=folium.Icon(color="orange", icon='info-sign')).add_to(m)
+        
+        # info_dict_new = {}
+        # for key, value in country_dict.items():
+        #     info_dict_new[key.title()] = value
+        # # add choropleth layer
+        # folium.Choropleth(
+        #     geo_data=self.world_data,  # path to GeoJSON file
+        #     name='choropleth',
+        #     data=info_dict_new,
+        #     columns=['Country', 'Frequency'],
+        #     key_on='feature.properties.name',
+        #     fill_color='YlOrRd',
+        #     fill_opacity=0.7,
+        #     line_opacity=0.2,
+        #     legend_name='Frequency'
+        # ).add_to(m)
+        
+        m.save(self.folium_file)
         self.load_html()
         
-        
     def load_html(self):
-        with open("project\\database\\for_spatial\\folium_map.html", "r") as f:
+        with open(self.folium_file, "r") as f:
             self.map_html = f.read()
-            self.webEngineView.setHtml(self.map_html)
+        self.webEngineView.setHtml(self.map_html)
+        self.webEngineView.update()
+
+
 
     def append_url(self, item):
         """append url to input box"""
@@ -208,8 +234,6 @@ class SearchWidget(QWidget):
             self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
         self.log_area.scrollToBottom()
     
-    # def map_update(self, list_of_id):
-    
     def insert(self):
         """insert function"""
         # get the url from the insert line edit
@@ -231,7 +255,6 @@ class SearchWidget(QWidget):
                 return
             except Exception as e:
                 self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to insert"))
-                # self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
                 print("Insert Error : ", e)
                 return
         
@@ -248,6 +271,7 @@ class SearchWidget(QWidget):
                 # remove all the data related to the url
                 tf = main_database(self.database_file)
                 tf.removeData(input_url)
+                tf.close()
                 # clear the insert line edit
                 self.insert_input.clear() 
                 # display log in the log area

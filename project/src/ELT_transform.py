@@ -118,6 +118,7 @@ class main_database:
     # tested in datapipeline
     def removeData(self, url):
         """remove the data from the database"""
+        print("Removing URL : ", url)
         temp_datarow = self.dp.fetch_data_by_url(url)
         self.dp.removeWebData(temp_datarow['URL'])
         self.dp.uncountRef(temp_datarow['Ref_To'])
