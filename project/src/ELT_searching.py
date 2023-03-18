@@ -206,7 +206,7 @@ class invertedIndexSearch:
                     # return self.Link_from_ID(id_list)
                     # return the result and cache the result
                     self.search_cacher(",".join(cleaned_query), id_list)
-                    print(self.get_place_dict(id_list))
+                    print("Total Place : ", len(self.get_place_dict(id_list)))
                     return (self.Link_from_ID(id_list), self.get_place_dict(id_list))
                 else:
                     return None            

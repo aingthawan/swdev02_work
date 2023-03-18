@@ -17,7 +17,7 @@ class SearchWidget(QWidget):
         self.database_file = 'project\\database\\' + file_name        
         
         # clean new map
-        m = folium.Map(location=[0, 0], tiles='cartodbdark_matter', zoom_start=2)
+        m = folium.Map(location=[10, 0], tiles='cartodbdark_matter', zoom_start=2)
         m.save('project\\database\\for_spatial\\folium_map.html')
         self.webEngineView = QWebEngineView()
         self.load_html()
@@ -140,7 +140,8 @@ class SearchWidget(QWidget):
             self.country_coordinate = pd.read_csv(f)
     
     def map_plotter(self, country_dict):
-        m = folium.Map(location=[0, 0], tiles='cartodbdark_matter', zoom_start=2)
+        print("Plotting map...")
+        m = folium.Map(location=[10, 0], tiles='cartodbdark_matter', zoom_start=2)
         # for all countries in the dictionary, add a marker to the map
         for country, freq in country_dict.items():
             # get the lat and long of the country
@@ -148,10 +149,9 @@ class SearchWidget(QWidget):
             lat = self.country_coordinate[self.country_coordinate['country'] == country]['lat'].values[0]
             long = self.country_coordinate[self.country_coordinate['country'] == country]['long'].values[0]
             folium.Marker([lat, long], popup=country.upper(), icon=folium.Icon(color="red", icon='info-sign')).add_to(m)
-        # pin random countries
         m.save('project\\database\\for_spatial\\folium_map.html')
         self.load_html()
-        self.webEngineView.reload()
+        
         
     def load_html(self):
         with open("project\\database\\for_spatial\\folium_map.html", "r") as f:
