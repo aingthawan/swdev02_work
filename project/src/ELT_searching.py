@@ -87,18 +87,6 @@ class invertedIndexSearch:
         # print("Total ", len(temp), " results found")
         return temp
     
-    # def TFScore(self, word, IDlist):
-    #     """return the TF score for each id in the id list to a term"""
-    #     score_temp = {}
-    #     # start_time = time.time()
-    #     for ids in IDlist:
-    #         # total word in the document
-    #         total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))
-    #         total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
-    #         score_temp[ids] = total_term / total_words
-    #     end_time = time.time()
-    #     # print("TF Score Time : ", end_time - start_time)
-    #     return score_temp
     def TFScore(self, word, IDlist):
         """return the TF score for each id in the id list to a term"""
         score_temp = {}
@@ -115,23 +103,6 @@ class invertedIndexSearch:
             score_temp[ids] = inverted_dict[ids][ids] / total_words_dict[ids]
         return score_temp
 
-        
-
-    # def IDFScore(self, word_list):
-    #     """return the IDF score dictionary of each word in the word list"""
-    #     # start_time = time.time()
-    #     score_temp = {}
-    #     for word in word_list:
-    #         # get total document
-    #         self.curr.execute("SELECT COUNT(*) FROM web_Data")
-    #         total_doc = self.curr.fetchone()[0]
-    #         # get total document contain the word
-    #         self.curr.execute(f"SELECT Document_Freq FROM Inverted_Index WHERE Word = '{word}'")
-    #         total_doc_contain = self.curr.fetchone()[0]
-    #         score_temp[word] = math.log(total_doc / total_doc_contain)
-    #     # end_time = time.time()
-    #     # print("IDF Score Time : ", end_time - start_time)
-    #     return score_temp
     def IDFScore(self, word_list):
         score_temp = {}
         self.curr.execute("SELECT COUNT(*) FROM web_Data")
@@ -194,22 +165,6 @@ class invertedIndexSearch:
         self.curr.execute(f"INSERT INTO Search_Cache (Query_List, ID_List) VALUES ('{user_query}', '{id_list}')")
         self.conn.commit()
         
-    # method to check if the query is in the cache
-    # def search_cache_checker(self, cleaned_query):
-    #     # check if the query is in the Query_List column
-    #     # if yes return the ID_List
-    #     self.curr.execute("SELECT Query_List FROM Search_Cache")
-    #     search_cache = self.curr.fetchall()
-    #     for item in search_cache:
-    #         if self.compare_query(cleaned_query, item[0].split(",")):
-    #             # if the query is in the cache, return the result
-    #             self.curr.execute("SELECT ID_List FROM Search_Cache WHERE Query_List = ?", (item[0],))
-    #             return eval(self.curr.fetchone()[0])
-    #         # else return None
-    #         else:
-    #             continue
-    #     # out of the loop, return None
-    #     return None
     def search_cache_checker(self, cleaned_query):
         # check if the query is in the Query_List column
         # if yes return the ID_List
@@ -220,10 +175,25 @@ class invertedIndexSearch:
         # out of the loop, return None
         return None
 
-
+    def get_place_dict(self, id_list):
+        self.curr.execute(f"SELECT Place FROM Web_Data WHERE Web_ID IN {tuple(id_list)}")
+        places = self.curr.fetchall()
+        final_dict = {}
+        for i in places:
+            temp_dict = eval(i[0])
+            for key, value in temp_dict.items():
+                if key not in final_dict:
+                    final_dict[key] = value
+                else:
+                    final_dict[key] += value
+        return final_dict
+        
 
     def full_search(self, user_query):
-        """return a list of url from a user query"""
+        """return a list of url from a user query
+        return None if no result found
+        return [[list of ranked url] , {dict of place and count}]
+        """
         cleaned_query = self.queryCleaner(user_query)
         if cleaned_query != None:
             # check if the query is in the cache
@@ -236,13 +206,15 @@ class invertedIndexSearch:
                     # return self.Link_from_ID(id_list)
                     # return the result and cache the result
                     self.search_cacher(",".join(cleaned_query), id_list)
-                    return self.Link_from_ID(id_list)
+                    print(self.get_place_dict(id_list))
+                    return (self.Link_from_ID(id_list), self.get_place_dict(id_list))
                 else:
                     return None            
             else:
                 print("From Cache")
                 # ================================================
-                return self.Link_from_ID(load_from_cache) 
+                # print(self.get_place_dict(load_from_cache))
+                return (self.Link_from_ID(load_from_cache), self.get_place_dict(load_from_cache))
                 # print(load_from_cache)
         else:
             return None
@@ -267,10 +239,10 @@ if __name__ == "__main__":
             user_query = input("\n\nEnter your search query : ")
             os.system('cls')
             result_list = iis.full_search(user_query)
-            if result_list == None:
+            if result_list[0] == None:
                 print("No result found")
             else:
-                for result in result_list[:9]:
+                for result in result_list[0][:9]:
                     print(result[0])
         
 

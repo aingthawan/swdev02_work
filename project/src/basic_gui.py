@@ -1,34 +1,40 @@
 import sys
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget
+from PyQt5.QtWebEngineWidgets import QWebEngineView
 from ELT_searching import invertedIndexSearch
 from ELT_transform import main_database
 import time
 import webbrowser
+import folium
+import pandas as pd
 
 class SearchWidget(QWidget):
     def __init__(self):
-        file_name = 'database_elt_main_small.db'
-        # file_name = 'database_elt_main_small.db'
-        self.database_file = 'project\\database\\for_dev\\' + file_name
-        # self.database_file = 'project\database\\for_dev\\' + file_name
-        
         super().__init__()
-
-        self.setWindowTitle("Search GUI Basic v1.0")
-        self.resize(400, 600)
         
+        file_name = 'database_elt_main.db'
+        self.database_file = 'project\\database\\' + file_name        
+        
+        # clean new map
+        m = folium.Map(location=[0, 0], tiles='cartodbdark_matter', zoom_start=2)
+        m.save('project\\database\\for_spatial\\folium_map.html')
+        self.webEngineView = QWebEngineView()
+        self.load_html()
+        
+        self.load_coor()
+        
+        self.setWindowTitle("Search GUI Basic v1.0")
         left_widget_width = 600
         # Create widgets
         self.search_label = QLabel("Search:")
         self.search_input = QLineEdit()
         self.search_input.setFixedWidth(left_widget_width) # set box size
-        
         self.search_button = QPushButton("Start Search")
         self.search_button.setFixedWidth(left_widget_width) # set box size
-        
         self.output_area = QtWidgets.QListWidget()
         self.output_area.setFixedWidth(left_widget_width) # set box size
+        self.output_area.setFixedHeight(200)
         
         self.insert_label = QLabel("Update:")
         self.insert_input = QLineEdit() # Update input box
@@ -38,7 +44,7 @@ class SearchWidget(QWidget):
         self.result_len = QLabel("")
         self.log_label = QLabel("Log:")
         self.log_area = QtWidgets.QListWidget()
-        self.log_area.setFixedHeight(100) # set box size
+        self.log_area.setFixedHeight(125) # set box size
         self.log_area.setFixedWidth(300)
 
         # Set widget properties
@@ -56,6 +62,7 @@ class SearchWidget(QWidget):
         left_layout.addWidget(self.search_input)
         left_layout.addWidget(self.search_button)
         left_layout.addWidget(self.output_area)
+        # left_layout.addStretch()
         
         # Add stretch to push widgets to the top
         right_layout = QVBoxLayout()
@@ -63,17 +70,17 @@ class SearchWidget(QWidget):
         right_layout.addWidget(self.insert_input)
         right_layout.addWidget(self.insert_button)
         right_layout.addWidget(self.delete_button)
-        # add log label
         right_layout.addWidget(self.log_label)
-        # add log area
         right_layout.addWidget(self.log_area)
-        # add stretch to push widgets to the top
-        right_layout.addStretch()
 
         # Create main layout
-        main_layout = QHBoxLayout()
-        main_layout.addLayout(left_layout)
-        main_layout.addLayout(right_layout)
+        main_info_layout = QHBoxLayout()
+        main_info_layout.addLayout(left_layout)
+        main_info_layout.addLayout(right_layout)
+        # add map at the bottom
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(main_info_layout)
+        main_layout.addWidget(self.webEngineView)
         
         self.search_button.clicked.connect(self.search)
         self.insert_button.clicked.connect(self.insert)
@@ -88,10 +95,9 @@ class SearchWidget(QWidget):
         self.setLayout(main_layout)
 
         # Set the stylesheet for the widget
-        # Maybe make a separate file for this VVVVVVVVVVVVV
         style_sheet = """
             QWidget {
-                background-color: #2f362d;
+                background-color: #0a0a0a;
             }
             QLabel {
                 color: #FFFFFF;
@@ -99,11 +105,11 @@ class SearchWidget(QWidget):
                 font-weight: bold;
             }
             QLineEdit#searchInput, QLineEdit#insertInput {
-                border: 2px solid #CCCCCC;
+                border: 2px solid #242323;
                 border-radius: 4px;
                 padding: 6px;
                 font-size: 16px;
-                background-color: #1e211d;
+                background-color: #121111;
                 color: #FFFFFF;
             }
             QPushButton#searchButton, QPushButton#insertButton, QPushButton#deleteButton {
@@ -118,15 +124,39 @@ class SearchWidget(QWidget):
                 border-radius: 4px;
             }
             QListWidget#outputArea, #logArea{
-                border: 2px solid #CCCCCC;
+                border: 2px solid #242323;
                 border-radius: 4px;
                 padding: 6px;
                 font-size: 12px;
-                background-color: #1e211d;
+                background-color: #121111;
                 color: #FFFFFF;
             }
         """
         self.setStyleSheet(style_sheet)
+    
+    def load_coor(self):
+        # load country coordinate
+        with open('project\\database\\for_spatial\\country_lat_long.csv', 'r') as f:
+            self.country_coordinate = pd.read_csv(f)
+    
+    def map_plotter(self, country_dict):
+        m = folium.Map(location=[0, 0], tiles='cartodbdark_matter', zoom_start=2)
+        # for all countries in the dictionary, add a marker to the map
+        for country, freq in country_dict.items():
+            # get the lat and long of the country
+            # print(country, freq)
+            lat = self.country_coordinate[self.country_coordinate['country'] == country]['lat'].values[0]
+            long = self.country_coordinate[self.country_coordinate['country'] == country]['long'].values[0]
+            folium.Marker([lat, long], popup=country.upper(), icon=folium.Icon(color="red", icon='info-sign')).add_to(m)
+        # pin random countries
+        m.save('project\\database\\for_spatial\\folium_map.html')
+        self.load_html()
+        self.webEngineView.reload()
+        
+    def load_html(self):
+        with open("project\\database\\for_spatial\\folium_map.html", "r") as f:
+            self.map_html = f.read()
+            self.webEngineView.setHtml(self.map_html)
 
     def append_url(self, item):
         """append url to input box"""
@@ -156,6 +186,9 @@ class SearchWidget(QWidget):
             links = search.full_search(query)
             search.close()
             search_time = time.time() - search_start
+            
+            self.map_plotter(links[1])
+                        
         except Exception as e:
             self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to search"))
             self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
@@ -165,7 +198,7 @@ class SearchWidget(QWidget):
         self.output_area.clear()
         # check if there is any result
         if links:
-            self.output_area.addItems([link[0] for link in links])
+            self.output_area.addItems([link[0] for link in links[0]])
             # display log in the log area
             self.log_area.addItem(QtWidgets.QListWidgetItem("Search completed : " + query))
             # print search time
@@ -174,7 +207,9 @@ class SearchWidget(QWidget):
             self.log_area.addItem(QtWidgets.QListWidgetItem("No result found"))
             self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
         self.log_area.scrollToBottom()
-            
+    
+    # def map_update(self, list_of_id):
+    
     def insert(self):
         """insert function"""
         # get the url from the insert line edit

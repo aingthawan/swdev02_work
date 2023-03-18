@@ -10,7 +10,7 @@
 # updateInvertedIndexing: update the inverted index table with the word count for each word in the website data.
 
 import sqlite3
-import ast
+import pycountry
 
 class dataPipelines:
     """Class of function for Update / Remove data"""
@@ -19,6 +19,7 @@ class dataPipelines:
         """Input database file"""
         self.conn = sqlite3.connect(database_file, timeout=10)
         self.cursor = self.conn.cursor()
+        self.countries = [country.name.lower() for country in pycountry.countries]
         self.createTable()
     
     # tested
@@ -128,10 +129,18 @@ class dataPipelines:
     def updateWebData(self, web_id, url, all_words, ref_to):
         """Insert new url data into web_Data"""
         words = list(all_words.keys())
-        all_words = " , ".join(words) 
+        all_words_join = " , ".join(words) 
         ref_to = " , ".join(ref_to)
         
-        self.cursor.execute(f"INSERT INTO web_Data (Web_ID, URL, All_Word, Ref_To) VALUES (?, ?, ?, ?)", (web_id, url, all_words, ref_to))
+        dict_temp = {}
+        for i in all_words:
+            if i in self.countries:
+                if i in dict_temp.keys():
+                    dict_temp[i] += 1
+                else:
+                    dict_temp[i] = 1
+        
+        self.cursor.execute(f"INSERT INTO web_Data (Web_ID, URL, All_Word, Ref_To, Place) VALUES (?, ?, ?, ?, ?)", (web_id, url, all_words_join, ref_to, str(dict_temp)))
         self.conn.commit()
         
     
