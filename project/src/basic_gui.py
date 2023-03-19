@@ -145,44 +145,38 @@ class SearchWidget(QWidget):
             self.country_coordinate = pd.read_csv(f)
     
     def map_plotter(self, country_dict):
-        
         m = folium.Map(location=[10, 0], tiles='cartodbdark_matter', zoom_start=2)
-        
-        for country, freq in country_dict.items():
+        # sort country_dict by frequency descending and get top 10
+        sorted_country_dict = {k: v for k, v in sorted(country_dict.items(), key=lambda item: item[1], reverse=True)[:10]}
+        for country, freq in sorted_country_dict.items():
             lat = self.country_coordinate[self.country_coordinate['country'] == country]['lat'].values[0]
             long = self.country_coordinate[self.country_coordinate['country'] == country]['long'].values[0]
             # set marker for country name and frequency
-            if freq is max(country_dict.values()):
+            if freq is max(sorted_country_dict.values()):
                 folium.Marker([lat, long], popup=(country).upper() + ' : ' + str(freq), icon=folium.Icon(color="red", icon='info-sign')).add_to(m)
             else:
                 folium.Marker([lat, long], popup=country.upper(), icon=folium.Icon(color="orange", icon='info-sign')).add_to(m)
-        
-        # info_dict_new = {}
-        # for key, value in country_dict.items():
-        #     info_dict_new[key.title()] = value
-        # # add choropleth layer
-        # folium.Choropleth(
-        #     geo_data=self.world_data,  # path to GeoJSON file
-        #     name='choropleth',
-        #     data=info_dict_new,
-        #     columns=['Country', 'Frequency'],
-        #     key_on='feature.properties.name',
-        #     fill_color='YlOrRd',
-        #     fill_opacity=0.7,
-        #     line_opacity=0.2,
-        #     legend_name='Frequency'
-        # ).add_to(m)
-        
+        # add legend
+        legend_html = """
+                    <div style="position: fixed; 
+                                bottom: 50px; left: 50px; width: 220px; height: 100px; 
+                                border:1px solid grey; z-index:9999; font-size:14px;
+                                background-color: #0a0a0a">
+                                &nbsp;<b>Top 10 Referenced Countries</b><br>
+                                &nbsp;<i class="fa fa-map-marker fa-2x" style="color:red"></i>&nbsp; Highest Frequency<br>
+                                &nbsp;<i class="fa fa-map-marker fa-2x" style="color:orange"></i>&nbsp; Other Countries<br>
+                    </div>
+                    """
+        m.get_root().html.add_child(folium.Element(legend_html))
         m.save(self.folium_file)
         self.load_html()
+
         
     def load_html(self):
         with open(self.folium_file, "r") as f:
             self.map_html = f.read()
         self.webEngineView.setHtml(self.map_html)
         self.webEngineView.update()
-
-
 
     def append_url(self, item):
         """append url to input box"""
@@ -228,9 +222,9 @@ class SearchWidget(QWidget):
             # display log in the log area
             self.log_area.addItem(QtWidgets.QListWidgetItem("Search completed : " + query))
             # print search time
-            self.log_area.addItem(QtWidgets.QListWidgetItem("Search time : " + str(search_time)))
+            self.log_area.addItem(QtWidgets.QListWidgetItem("Search time : " + str(search_time) + "\n"))
         else:
-            self.log_area.addItem(QtWidgets.QListWidgetItem("No result found"))
+            self.log_area.addItem(QtWidgets.QListWidgetItem("No result found\n"))
             self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
         self.log_area.scrollToBottom()
     
