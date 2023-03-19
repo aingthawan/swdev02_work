@@ -177,7 +177,7 @@ def data_processing():
                         print("Paused Transform")
                         time.sleep(1)
                         if transform_quit or transform_status:
-                            print("Quitting Transform Process")
+                            print("\nQuitting Transform Process")
                             rawd.close()
                             mdb.close()
                             sys.exit()

@@ -1,22 +1,26 @@
 import sys
 import time
 import json
+import time
+import pickle
+import atexit
 import folium
+import threading
 import webbrowser
 import pandas as pd
+from ELT_scrape import *
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QUrl
 from ELT_transform import main_database
 from ELT_searching import invertedIndexSearch
 from PyQt5.QtWebEngineWidgets import QWebEngineView
-from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QTextEdit, QVBoxLayout, QHBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QWidget
 
 class SearchWidget(QWidget):
     def __init__(self):
         super().__init__()
         
-        file_name = 'database_elt_main.db'
-        self.database_file = 'project\\database\\' + file_name        
+        self.database_file = 'project\\database\\for_dev\\database_elt_main_small.db'
         self.folium_file = 'project\\database\\for_spatial\\folium_map.html'
         
         with open('project\\database\\for_spatial\\custom.geo.json', encoding='utf-8') as f:
@@ -45,8 +49,7 @@ class SearchWidget(QWidget):
         self.search_button.setFixedWidth(left_widget_width) # set box size
         self.output_area = QtWidgets.QListWidget()
         self.output_area.setFixedWidth(left_widget_width) # set box size
-        self.output_area.setFixedHeight(200)
-        
+        self.output_area.setFixedHeight(200)        
         self.insert_label = QLabel("Update:")
         self.insert_input = QLineEdit() # Update input box
         self.insert_input.setFixedWidth(300) # set box size
@@ -57,16 +60,29 @@ class SearchWidget(QWidget):
         self.log_area = QtWidgets.QListWidget()
         self.log_area.setFixedHeight(125) # set box size
         self.log_area.setFixedWidth(300)
-
+        self.crawl_label = QLabel("3 Layer Crawl:")
+        self.crawl_input = QLineEdit() # Update input box
+        self.crawl_input.setFixedHeight(35) # set box size
+        self.crawl_status = QtWidgets.QListWidget()
+        self.crawl_status.setFixedHeight(35) # set box size
+        self.crawl_status.setFixedWidth(300)
+        self.crawl_status.addItem(QtWidgets.QListWidgetItem("Spider Chilling..."))
+        self.crawl_button = QPushButton("Start Crawl")
+        self.crawl_button_stop = QPushButton("Stop Crawl")
+        self.crawl_button_quit = QPushButton("Quit Crawl")
         # Set widget properties
         self.search_input.setObjectName("searchInput")
         self.search_button.setObjectName("searchButton")
         self.output_area.setObjectName("outputArea")
         self.insert_input.setObjectName("insertInput")
+        self.crawl_input.setObjectName("crawlInput")
         self.insert_button.setObjectName("insertButton")
         self.delete_button.setObjectName("deleteButton")
+        self.crawl_button.setObjectName("crawlButton")
+        self.crawl_button_stop.setObjectName("crawlButtonStop")
+        self.crawl_button_quit.setObjectName("crawlButtonQuit")
         self.log_area.setObjectName("logArea")
-
+        self.crawl_status.setObjectName("crawlStatus")
         # Create layouts
         left_layout = QVBoxLayout()
         left_layout.addWidget(self.search_label)
@@ -92,14 +108,28 @@ class SearchWidget(QWidget):
         main_layout_mid.addLayout(main_info_layout)
         main_layout_mid.addWidget(self.webEngineView)
         
-        main_layout = QHBoxLayout()
-        main_layout.addWidget(self.web_view)
-        main_layout.addLayout(main_layout_mid)
+        main_layout_top = QHBoxLayout()
+        main_layout_top.addWidget(self.web_view)
+        main_layout_top.addLayout(main_layout_mid)
+        
+        crawl_layout = QHBoxLayout()
+        crawl_layout.addWidget(self.crawl_label)
+        crawl_layout.addWidget(self.crawl_input)
+        crawl_layout.addWidget(self.crawl_status)
+        crawl_layout.addWidget(self.crawl_button)
+        crawl_layout.addWidget(self.crawl_button_stop)
+        crawl_layout.addWidget(self.crawl_button_quit)
+        
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(main_layout_top)
+        main_layout.addLayout(crawl_layout)
         
         self.search_button.clicked.connect(self.search)
         self.insert_button.clicked.connect(self.insert)
         self.delete_button.clicked.connect(self.remove)
-        
+        self.crawl_button.clicked.connect(self.spider_ambassador)
+        self.crawl_button_stop.clicked.connect(self.spider_pauser_signal)
+        self.crawl_button_quit.clicked.connect(self.spider_quit_signal)
         # double click to open url
         self.output_area.itemDoubleClicked.connect(self.open_url)
         # single click to append url to input box
@@ -119,7 +149,7 @@ class SearchWidget(QWidget):
                 font-size: 22px;    
                 font-weight: bold;
             }
-            QLineEdit#searchInput, QLineEdit#insertInput {
+            QLineEdit#searchInput, #insertInput {
                 border: 2px solid #242323;
                 border-radius: 4px;
                 padding: 6px;
@@ -127,7 +157,15 @@ class SearchWidget(QWidget):
                 background-color: #121111;
                 color: #FFFFFF;
             }
-            QPushButton#searchButton, QPushButton#insertButton, QPushButton#deleteButton {
+            QLineEdit#crawlInput, QLineWidget#crawlStatus {
+                border: 2px solid #242323;
+                border-radius: 4px;
+                padding: 6px;
+                font-size: 16px;
+                background-color: #121111;
+                color: #FFFFFF;
+            }
+            QPushButton#searchButton, #insertButton, #deleteButton, #crawlButton, #crawlButtonStop, #crawlButtonQuit{
                 background-color: #fcba03;
                 border: 2px solid #a37903;
                 border-radius: 4px;
@@ -138,7 +176,7 @@ class SearchWidget(QWidget):
                 padding: 6px 12px;
                 border-radius: 4px;
             }
-            QListWidget#outputArea, #logArea{
+            QListWidget#outputArea, #logArea, #crawlStatus{
                 border: 2px solid #242323;
                 border-radius: 4px;
                 padding: 6px;
@@ -149,6 +187,19 @@ class SearchWidget(QWidget):
         """
         self.setStyleSheet(style_sheet)
         
+    def spider_quit_signal(self):
+        spider_stopper()
+        self.crawl_status.clear()
+        self.crawl_status.addItem(QtWidgets.QListWidgetItem("Spider just went home"))
+    
+    def spider_pauser_signal(self):
+        spider_pauser()
+        self.crawl_status.clear()
+        self.crawl_status.addItem(QtWidgets.QListWidgetItem("Spider Pausing..."))
+    
+    def spider_resume_signal(self):
+        spider_poker()
+    
     def display_url(self):
         # update
         self.web_view.load(QUrl(self.output_area.currentItem().text()))
@@ -220,7 +271,7 @@ class SearchWidget(QWidget):
         </html>
         """
         self.web_view.setHtml(start_html)
-        self.web_view.update()
+        self.web_view.update()    
 
     def append_url(self, item):
         """append url to input box"""
@@ -232,9 +283,9 @@ class SearchWidget(QWidget):
         webbrowser.open_new_tab(url)
     
     def search(self):
-        """search function"""
-        
+        """search function"""        
         # get the query from the search line edit
+        spider_pauser()
         query = self.search_input.text()
         # check if input is not empty
         if not query:
@@ -271,6 +322,42 @@ class SearchWidget(QWidget):
             self.log_area.addItem(QtWidgets.QListWidgetItem("No result found\n"))
             self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
         self.log_area.scrollToBottom()
+        spider_poker()
+    
+    def spider_ambassador(self):
+        # check in crawl input is empty
+        spider_stopper()
+        time.sleep(10)
+        if not self.crawl_input.text():
+            # if empty
+            # check if there anything to crawl
+            print("\n\nInput Empty, Check if there anything to crawl")
+            with open("project\\pickle_temp\\spider.pkl", "rb") as f:
+                    crawl_dict = pickle.load(f)
+            if len(crawl_dict) == 0:
+                # if nothing to crawl, Continue Chilling
+                self.crawl_status.addItem(QtWidgets.QListWidgetItem("Nothing to crawl, Enter New URL"))
+                ELT_scrape_main()
+                return
+            else:
+                self.crawl_status.addItem(QtWidgets.QListWidgetItem("Added New URL to Crawl List"))
+                # 1-Continue Spider job
+                ELT_scrape_main()
+                return
+        else:
+            # if not empty
+            # check is there anything to crawl
+            print("\n\nAdd New URL to Crawl")
+            self.crawl_status.addItem(QtWidgets.QListWidgetItem("Added New URL to Crawl List"))
+            with open("project\\pickle_temp\\spider.pkl", "rb") as f:
+                    crawl_dict = pickle.load(f)
+            crawl_dict.append({self.crawl_input.text(): [1,3]})
+            with open("project\\pickle_temp\\spider.pkl", "wb") as f:
+                    pickle.dump(crawl_dict, f)
+            ELT_scrape_main()
+        self.crawl_input.clear()
+        # scroll to bottom
+        self.crawl_status.scrollToBottom()
     
     def insert(self):
         """insert function"""
@@ -321,8 +408,19 @@ class SearchWidget(QWidget):
                 self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
                 return        
 
+def exit_func():
+    global spider_quitting
+    print("\n\nClosing Program\n\n")
+    spider_quitting = True
+    sys.exit()
+
 if __name__ == "__main__":
+    spider_thread = threading.Thread(target=ELT_scrape_main)
+    spider_thread.start()
     app = QApplication(sys.argv)
     search_widget = SearchWidget()
     search_widget.show()
-    sys.exit(app.exec_())
+    # spider_thread.join()
+    app.exec_()
+    atexit.register(exit_func)
+
