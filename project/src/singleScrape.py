@@ -65,15 +65,6 @@ class pageScrapers:
         text_content = text_content.strip()
         return text_content
     
-    # def scrape_all_urls(self, html_text):
-    #     soup = BeautifulSoup(html_text, 'html.parser')
-    #     urls = []
-    #     for link in soup.find_all('a'):
-    #         url = link.get('href')
-    #         if url and re.match("^(http://|https://)", url) and not re.search(".(jpg|jpeg|png|gif)$", url):
-    #             urls.append(url)
-    #     return list(set(urls))
-    
     # tested
     def scrape_all_urls(self, html_text):
         soup = BeautifulSoup(html_text, 'html.parser')

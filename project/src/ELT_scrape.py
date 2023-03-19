@@ -24,69 +24,7 @@ class get_raw_content:
             domain = domain[4:]
         return domain
     
-    # def crawl(self, url, current_depth, limit_depth):
-    #     """Crawl the website and keep the raw content in the database"""
-    #     # check if the current depth is less than the limit depth
-    #     global tinderURL
-    #     try:
-    #         # Quitting Script ============================
-    #         while spider_pause:
-    #             print("Spider is paused")
-    #             time.sleep(1)
-    #             if spider_quitting:
-    #                 print("Spider is quitting")
-    #                 # dump the list into the pickle file
-    #                 with open('tinderURL.pickle', 'wb') as f:
-    #                     pickle.dump(tinderURL, f)
-    #                 print("Dumping the list into the pickle file")
-    #                 # print("\n\n\ntinderURL : ", tinderURL)
-    #                 return sys.exit()                    
-    #         # ============================================
-    #         if url in tinderURL:
-    #             # remove the url from the list
-    #             tinderURL.pop(url)
-    #         if current_depth <= limit_depth:
-    #             # check if url not exists in the raw database or main database
-    #             if self.rk.checkRaw(url) or self.lc.alreadyScrape(url):
-    #                 pass
-    #             else:
-    #                 # get the raw content
-    #                 get_raw = self.ps.get_raw_html(url)
-                    
-    #                 # check if the raw content is not empty
-    #                 if get_raw is not None:
-    #                     print(current_depth," Crawling: ", url)
-    #                     # get all the links in the page
-    #                     # insert the raw content into the database
-    #                     self.rk.insertRaw(url, get_raw)
-                        
-    #                 else:
-    #                     pass
-
-    #                 # crawl all the back links
-    #                 all_link = self.ps.scrape_all_urls(get_raw)
-    #                 # put the link into the dict tinderURL
-    #                 for link in all_link:
-    #                     tinderURL[link] = [current_depth+1, limit_depth]
-                        
-    #                 for link in all_link:
-    #                     # check if the link is from the same domain and the current depth is less than the limit depth, then crawl the link
-    #                     if (current_depth+1 <= limit_depth):
-    #                         if (self.get_domain(link) == self.get_domain(url)):
-    #                             self.crawl(link, current_depth + 1, limit_depth)
-    #                         else:
-    #                             print("not from the same domain")
-    #                             pass
-    #                     else:
-    #                         # end layer
-    #                         return
-    #         else:
-    #             return
-    #     # if there is an error, just pass
-    #     except Exception as e:
-    #         print(e)
-    #         pass
-    #     return
+    
     def crawl(self, url, current_depth, limit_depth):
         """Crawl the website and keep the raw content in the database"""
         # check if the current depth is less than the limit depth
@@ -97,23 +35,28 @@ class get_raw_content:
                 time.sleep(1)
                 if spider_quitting:
                     print("Spider is quitting")
-                    with open('tinderURL.pickle', 'wb') as f:
+                    with open("project\\pickle_temp\\spider.pkl", 'wb') as f:
+                        print("Dumping the list ( " ,len(tinderURL), " urls ) into the pickle file")
                         pickle.dump(tinderURL, f)
-                    print("Dumping the list into the pickle file")
-                    return sys.exit()                    
-            if url in tinderURL:
-                tinderURL.pop(url)
+                    return sys.exit()
+                
+            for i in tinderURL:
+                if url in i:
+                    tinderURL.remove(i)
+                    
             if current_depth <= limit_depth:
                 if not self.rk.checkRaw(url) and not self.lc.alreadyScrape(url):
                     get_raw = self.ps.get_raw_html(url)
                     if get_raw is not None:
-                        print(current_depth," Crawling: ", url)
+                        print("Level : ", current_depth," Crawling: ", url)
                         self.rk.insertRaw(url, get_raw)
+                        
                     all_link = self.ps.scrape_all_urls(get_raw)
                     if current_depth+1 <= limit_depth:
                         for link in all_link:
-                            tinderURL[link] = [current_depth+1, limit_depth]
+                            tinderURL.append({link:[current_depth+1, limit_depth]})
                         print("All url in queue : ", len(tinderURL))
+                        
                     for link in all_link:
                         if (current_depth+1 <= limit_depth):
                             if (self.get_domain(link) == self.get_domain(url)):
@@ -141,21 +84,15 @@ def spider_job():
     mainfilename = "database_elt_main_small.db"
 
     grc = get_raw_content(db_path+rawfilename, db_path+mainfilename)
-    for link in (tinderURL):
-    # for link in tinderURL:
-    # format {'url1':[current_depth,limit_depth], 'url2':[current_depth,limit_depth] }
+    for link in tinderURL:
+    # format [ {'url1':[current_depth,limit_depth] }, {'url2':[current_depth,limit_depth] } ]
         print("Crawling: ", link)
-        grc.crawl(link, tinderURL[link][0], tinderURL[link][1])
+        grc.crawl(list(link.keys())[0], list(link.values())[0][0], list(link.values())[0][1])
 
     print("\n\nDone\n\n")
     
     grc.close()
     return
-
-def spider():
-    global tinderURL
-    spider_job()
-    sys.exit()
 
 def spider_job_control():
     global spider_pause
@@ -188,21 +125,21 @@ def spider_job_control():
 spider_pause = False
 spider_quitting = False
 spider_status = False # False is not finished, True is finished
-tinderURL = {
-    "https://www.dpreview.com/news/9657627837/leica-announces-vario-elmar-sl-100-400-f5-6-3-and-1-4x-extender": [1, 3],
-}
+tinderURL = [
+    {"https://www.dpreview.com/news/9657627837/leica-announces-vario-elmar-sl-100-400-f5-6-3-and-1-4x-extender": [1, 3],},
+]
             
 if __name__ == "__main__":
     try:
         print("Loading the pickle file")
-        with open("project\\pickle_temp\\spider.pickle", "rb") as f:
+        with open("project\\pickle_temp\\spider.pkl", "rb") as f:
             tinderURL = pickle.load(f)
         print("\n\n\ntinderURL : ", tinderURL, "\n\n\n")
     except:
         print("No pickle file found, creating a new one")
-        with open("project\\pickle_temp\\spider.pickle", "wb") as f:
+        with open("project\\pickle_temp\\spider.pkl", "wb") as f:
             pickle.dump(tinderURL, f)
-        with open("project\\pickle_temp\\spider.pickle", "rb") as f:
+        with open("project\\pickle_temp\\spider.pkl", "rb") as f:
             tinderURL = pickle.load(f)
         print("\n\n\ntinderURL : ", tinderURL, "\n\n\n")
     
@@ -212,7 +149,7 @@ if __name__ == "__main__":
     job_cont_thread = threading.Thread(target=spider_job_control)
     job_cont_thread.start()
     
-    spider_thread = threading.Thread(target=spider)
+    spider_thread = threading.Thread(target=spider_job)
     spider_thread.start()
     
     transform_job.join()
