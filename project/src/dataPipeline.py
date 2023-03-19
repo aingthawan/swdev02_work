@@ -27,7 +27,7 @@ class dataPipelines:
         # Create table for keeping domain name of url and times of referenced to
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
         # Create a table for unique id for each url and list of all words in that url and list of url found on that page
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To, Place)")
         # Create table for each word, number of document that contain that word and dictionary of sorted key that are id of url and number of that word found on that link
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
         # create table for keeping list of query and list of id that match with that query
