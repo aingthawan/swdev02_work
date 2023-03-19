@@ -5,6 +5,7 @@ import folium
 import webbrowser
 import pandas as pd
 from PyQt5 import QtWidgets
+from PyQt5.QtCore import QUrl
 from ELT_transform import main_database
 from ELT_searching import invertedIndexSearch
 from PyQt5.QtWebEngineWidgets import QWebEngineView
@@ -21,6 +22,11 @@ class SearchWidget(QWidget):
         with open('project\\database\\for_spatial\\custom.geo.json', encoding='utf-8') as f:
             # keep data in json format
             self.world_data = json.load(f)
+        
+        self.web_view = QWebEngineView(self)
+        # add width to web view
+        self.web_view.setFixedWidth(500)
+        self.web_view.setFixedHeight(700)
         
         # clean new map
         m = folium.Map(location=[10, 0], tiles='cartodbdark_matter', zoom_start=2)
@@ -67,7 +73,6 @@ class SearchWidget(QWidget):
         left_layout.addWidget(self.search_input)
         left_layout.addWidget(self.search_button)
         left_layout.addWidget(self.output_area)
-        # left_layout.addStretch()
         
         # Add stretch to push widgets to the top
         right_layout = QVBoxLayout()
@@ -77,15 +82,19 @@ class SearchWidget(QWidget):
         right_layout.addWidget(self.delete_button)
         right_layout.addWidget(self.log_label)
         right_layout.addWidget(self.log_area)
-
+        
         # Create main layout
         main_info_layout = QHBoxLayout()
         main_info_layout.addLayout(left_layout)
         main_info_layout.addLayout(right_layout)
         # add map at the bottom
-        main_layout = QVBoxLayout()
-        main_layout.addLayout(main_info_layout)
-        main_layout.addWidget(self.webEngineView)
+        main_layout_mid = QVBoxLayout()
+        main_layout_mid.addLayout(main_info_layout)
+        main_layout_mid.addWidget(self.webEngineView)
+        
+        main_layout = QHBoxLayout()
+        main_layout.addWidget(self.web_view)
+        main_layout.addLayout(main_layout_mid)
         
         self.search_button.clicked.connect(self.search)
         self.insert_button.clicked.connect(self.insert)
@@ -95,6 +104,7 @@ class SearchWidget(QWidget):
         self.output_area.itemDoubleClicked.connect(self.open_url)
         # single click to append url to input box
         self.output_area.itemClicked.connect(self.append_url)
+        self.output_area.itemClicked.connect(self.display_url)
 
         # Set the layout for the widget
         self.setLayout(main_layout)
@@ -138,6 +148,11 @@ class SearchWidget(QWidget):
             }
         """
         self.setStyleSheet(style_sheet)
+        
+    def display_url(self):
+        # update
+        self.web_view.load(QUrl(self.output_area.currentItem().text()))
+        # self.web_view.update()
     
     def load_coor(self):
         # load country coordinate
@@ -177,6 +192,35 @@ class SearchWidget(QWidget):
             self.map_html = f.read()
         self.webEngineView.setHtml(self.map_html)
         self.webEngineView.update()
+        # blank html
+        start_html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="UTF-8">
+        <title>Blank Page</title>
+        <style>
+            body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #1a1a1a;
+            height: 100vh;
+            }
+            p {
+            color: #404040;
+            font-family: Verdana;
+            text-align: center;
+            }
+        </style>
+        </head>
+        <body>
+        <p><b>Search Something!</b></p>
+        </body>
+        </html>
+        """
+        self.web_view.setHtml(start_html)
+        self.web_view.update()
 
     def append_url(self, item):
         """append url to input box"""
