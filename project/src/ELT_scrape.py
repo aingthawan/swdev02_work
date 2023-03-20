@@ -27,8 +27,7 @@ class get_raw_content:
         for d in tinderURL:
             if url in d:
                 return True
-            else:
-                return False
+        return False
         
     def crawl(self, url, current_depth, limit_depth):
         """crawl the website"""
@@ -68,7 +67,7 @@ def main():
                 print("Dumped the tinderURL to pickle")
                 return        
         if len(tinderURL) == 0:
-            time.sleep(1)
+            time.sleep(5)
             print("No url to crawl")
         else:
             link = tinderURL.pop(0)
@@ -79,17 +78,23 @@ def main():
 def spider_control():
     global spider_pause
     global spider_quit
+    global tinderURL
     while True:
         command = input("Enter command : ")
         if command == "pause":
             spider_pause = True
-        if command == "resume":
+        elif command == "resume":
             spider_pause = False
-        if command == "quit":
+        elif command == "quit":
             transform_stop()
             spider_pause = True
             spider_quit = True
             sys.exit()
+        else:
+            print(tinderURL)
+            print("add url")
+            tinderURL.append({command : [1,3]})
+            print(tinderURL)
             
 def spider_pauser():
     global spider_pause_signal
@@ -97,7 +102,7 @@ def spider_pauser():
     spider_pause_signal = True
 
 # tinderURL = [{"https://www.35mmc.com/19/03/2023/ilford-xp2-high-street-superhero-film-review-by-ted-arye/": [1,3]}, ]
-tinderURL = []
+tinderURL_start = []
 spider_alive = True
 spider_pause = False
 spider_quit = False
@@ -116,7 +121,7 @@ if __name__ == "__main__":
     except:
         print("No pickle file found, creating a new one")
         with open("project\\pickle_temp\\spider.pkl", "wb") as f:
-            pickle.dump(tinderURL, f)
+            pickle.dump(tinderURL_start, f)
         with open("project\\pickle_temp\\spider.pkl", "rb") as f:
             tinderURL = pickle.load(f)
         print("\n\n\ntinderURL : ", tinderURL, "\n\n\n")
