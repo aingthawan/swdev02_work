@@ -6,6 +6,11 @@ import os
 import math
 import time
 
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+import mpld3
+
 class invertedIndexSearch:
     """class for searching the url from database, Inverted Indexing Style"""
 
@@ -218,6 +223,45 @@ class invertedIndexSearch:
                 # print(load_from_cache)
         else:
             return None
+        
+    def bar_plotter(self):
+        """Method for plotting the bar chart"""
+        self.curr.execute("SELECT * FROM Inverted_Index")
+        word_data = self.curr.fetchall()
+        dataframe = pd.DataFrame(word_data)
+        dataframe.rename(columns={0: 'word', 1: 'document_frequency'}, inplace=True)
+        dataframe.sort_values(by=['document_frequency'], ascending=False, inplace=True)
+        dataframe = dataframe[dataframe.document_frequency != 0]
+
+        # Set the custom style with black background
+        # plt.style.use('dark_background')
+
+        top_n = 30 # Change this to the number of top words you want to display
+        top_words_df = dataframe[:top_n]
+        freq_rank_10 = dataframe.iloc[top_n]['document_frequency']
+
+        px = 1/plt.rcParams['figure.dpi']  # pixel in inches
+        fig, ax = plt.subplots(figsize=(900*px, 350*px))
+
+        # Set the color of the bars to yellow
+        bars = ax.bar(top_words_df['word'], top_words_df['document_frequency'], color='orange')
+
+        # Set the y-axis limits to start at a value greater than zero
+        ax.set_ylim(ymin=freq_rank_10-20)
+
+        # Set the color of the x-axis and y-axis labels and the title to white
+        plt.xticks(rotation=45, ha='right')
+        ax.tick_params(axis='x', colors='black')
+        ax.tick_params(axis='y', colors='black')
+        ax.set_xlabel('Word', color='black')
+        ax.set_ylabel('Document Frequency', color='black')
+        ax.set_title(f'Top {top_n} Words by Frequency', color='black')
+
+        # Convert the plot to an HTML format using mpld3
+        html = mpld3.fig_to_html(fig)      
+        # save the html file
+        with open('project\\database\\graph\\top_freq_word.html', 'w') as f:
+            f.write(html)
         
 
         

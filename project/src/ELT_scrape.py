@@ -54,7 +54,7 @@ class get_raw_content:
 def main():
     global tinderURL
     # initialize the class
-    grc = get_raw_content("project\\database\\for_dev\\database_elt_raw_small.db", "project\\database\\for_dev\\database_elt_main_small.db")
+    grc = get_raw_content("project\\database\\database_elt_raw.db", "project\\database\\database_elt_main.db")
     while spider_alive:
         
         while spider_pause or spider_pause_signal:
@@ -72,7 +72,11 @@ def main():
         else:
             link = tinderURL.pop(0)
             print("Queue length : ", len(tinderURL))
-            grc.crawl(list(link.keys())[0], list(link.values())[0][0], list(link.values())[0][1])
+            try:
+                grc.crawl(list(link.keys())[0], list(link.values())[0][0], list(link.values())[0][1])
+            except Exception as e:
+                print("Error : ", e)
+                pass
     return
 
 def spider_control():
@@ -93,13 +97,13 @@ def spider_control():
         else:
             print(tinderURL)
             print("add url")
-            tinderURL.append({command : [1,3]})
+            tinderURL.append({command : [1,2]})
             print(tinderURL)
             
 def spider_pauser():
     global spider_pause_signal
     print("Pausing Spider...")
-    spider_pause_signal = True
+    spider_pause = True
 
 # tinderURL = [{"https://www.35mmc.com/19/03/2023/ilford-xp2-high-street-superhero-film-review-by-ted-arye/": [1,3]}, ]
 tinderURL_start = []

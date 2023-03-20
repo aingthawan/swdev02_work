@@ -46,7 +46,8 @@ class pageScrapers:
     # tested
     def get_raw_html(self, url):
         """get raw html soup obj using a rotating proxy"""
-        res_temp = requests.get(url, headers=self.headers)
+        # res_temp = requests.get(url, headers=self.headers)
+        res_temp = requests.get(url)
         if res_temp.status_code == 200:
             return res_temp.text
         else:

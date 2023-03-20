@@ -68,8 +68,8 @@ class SearchWidget(QWidget):
         self.crawl_status.setFixedWidth(300)
         self.crawl_status.addItem(QtWidgets.QListWidgetItem("Spider Chilling..."))
         self.crawl_button = QPushButton("Start Crawl")
-        self.crawl_button_stop = QPushButton("Stop Crawl")
-        self.crawl_button_quit = QPushButton("Quit Crawl")
+        self.crawl_button_stop = QPushButton("Bar")
+        self.crawl_button_quit = QPushButton("Spatial")
         # Set widget properties
         self.search_input.setObjectName("searchInput")
         self.search_button.setObjectName("searchButton")
@@ -129,8 +129,8 @@ class SearchWidget(QWidget):
         self.delete_button.clicked.connect(self.remove)
         
         # self.crawl_button.clicked.connect()
-        self.crawl_button_stop.clicked.connect(spider_pauser)
-        # self.crawl_button_quit.clicked.connect()
+        self.crawl_button_stop.clicked.connect(self.bar_plotter)
+        self.crawl_button_quit.clicked.connect(self.map_loader)
         
         # double click to open url
         self.output_area.itemDoubleClicked.connect(self.open_url)
@@ -226,6 +226,21 @@ class SearchWidget(QWidget):
         m.save(self.folium_file)
         self.load_html()
 
+    def bar_plotter(self):
+        search = invertedIndexSearch(self.database_file)
+        search.bar_plotter()
+        search.close()
+        # display bar plot
+        with open('project\\database\\graph\\top_freq_word.html', "r") as f:
+            bar_html = f.read()
+        self.webEngineView.setHtml(bar_html)
+        self.webEngineView.update()
+        
+    def map_loader(self):
+        with open(self.folium_file, "r") as f:
+            self.map_html = f.read()
+        self.webEngineView.setHtml(self.map_html)
+        self.webEngineView.update()
         
     def load_html(self):
         with open(self.folium_file, "r") as f:
@@ -295,6 +310,7 @@ class SearchWidget(QWidget):
         except Exception as e:
             self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to search"))
             self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
+            self.log_area.scrollToBottom()
             return
 
         # clear the search previous result list
@@ -329,10 +345,12 @@ class SearchWidget(QWidget):
                 self.insert_input.clear()
                 # display log in the log area
                 self.log_area.addItem(QtWidgets.QListWidgetItem("Insert Process completed"))
+                self.log_area.scrollToBottom()
                 return
             except Exception as e:
                 self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to insert"))
-                print("Insert Error : ", e)
+                self.log_area.addItem(QtWidgets.QListWidgetItem(e))
+                self.log_area.scrollToBottom()
                 return
         
     def remove(self):
@@ -353,11 +371,13 @@ class SearchWidget(QWidget):
                 self.insert_input.clear() 
                 # display log in the log area
                 self.log_area.addItem(QtWidgets.QListWidgetItem("Remove completed"))
+                self.log_area.scrollToBottom()
                 return
             # except and keep error message then display it in the log area
             except Exception as e:
                 self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to remove"))
                 self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
+                self.log_area.scrollToBottom()
                 return        
 
 def exit_func():

@@ -156,9 +156,9 @@ class main_database:
 
 def data_processing():
     # global transform_quit
-    directory = "project\\database\\for_dev\\"
-    raw_dir = directory + "database_elt_raw_small.db"
-    main_dir = directory + "database_elt_main_small.db"
+    directory = "project\\database\\"
+    raw_dir = directory + "database_elt_raw.db"
+    main_dir = directory + "database_elt_main.db"
     rawd = raw_database(raw_dir)
     mdb = main_database(main_dir)
     
@@ -191,12 +191,18 @@ def transform_stop():
     print("Stopping Transform Process")
     transform_quit = True
     
-# if __name__ == "__main__":
 def transform_main():
     global transform_quit
     transform_quit = False
     data_processing()
-    
+
+if __name__ == "__main__":
+    try:
+        transform_main()
+    except KeyboardInterrupt:
+        transform_stop()
+
+
 #  _._     _,-'""`-._
 # (,-.`._,'(       |\`-/|
 #     `-.-' \ )-`( , o o)  < Katze is cat in German
