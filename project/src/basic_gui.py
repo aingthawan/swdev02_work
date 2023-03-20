@@ -11,7 +11,7 @@ import pandas as pd
 from ELT_scrape import *
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QUrl
-from ELT_transform import main_database
+from ELT_transform import *
 from ELT_searching import invertedIndexSearch
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QWidget
@@ -20,7 +20,7 @@ class SearchWidget(QWidget):
     def __init__(self):
         super().__init__()
         
-        self.database_file = 'project\\database\\for_dev\\database_elt_main_small.db'
+        self.database_file = 'project\\database\\database_elt_main.db'
         self.folium_file = 'project\\database\\for_spatial\\folium_map.html'
         
         with open('project\\database\\for_spatial\\custom.geo.json', encoding='utf-8') as f:
@@ -127,9 +127,11 @@ class SearchWidget(QWidget):
         self.search_button.clicked.connect(self.search)
         self.insert_button.clicked.connect(self.insert)
         self.delete_button.clicked.connect(self.remove)
-        self.crawl_button.clicked.connect(self.spider_ambassador)
-        self.crawl_button_stop.clicked.connect(self.spider_pauser_signal)
-        self.crawl_button_quit.clicked.connect(self.spider_quit_signal)
+        
+        # self.crawl_button.clicked.connect()
+        self.crawl_button_stop.clicked.connect(spider_pauser)
+        # self.crawl_button_quit.clicked.connect()
+        
         # double click to open url
         self.output_area.itemDoubleClicked.connect(self.open_url)
         # single click to append url to input box
@@ -187,19 +189,6 @@ class SearchWidget(QWidget):
         """
         self.setStyleSheet(style_sheet)
         
-    def spider_quit_signal(self):
-        spider_stopper()
-        self.crawl_status.clear()
-        self.crawl_status.addItem(QtWidgets.QListWidgetItem("Spider just went home"))
-    
-    def spider_pauser_signal(self):
-        spider_pauser()
-        self.crawl_status.clear()
-        self.crawl_status.addItem(QtWidgets.QListWidgetItem("Spider Pausing..."))
-    
-    def spider_resume_signal(self):
-        spider_poker()
-    
     def display_url(self):
         # update
         self.web_view.load(QUrl(self.output_area.currentItem().text()))
@@ -285,7 +274,6 @@ class SearchWidget(QWidget):
     def search(self):
         """search function"""        
         # get the query from the search line edit
-        spider_pauser()
         query = self.search_input.text()
         # check if input is not empty
         if not query:
@@ -322,42 +310,6 @@ class SearchWidget(QWidget):
             self.log_area.addItem(QtWidgets.QListWidgetItem("No result found\n"))
             self.output_area.addItem(QtWidgets.QListWidgetItem("No result found"))
         self.log_area.scrollToBottom()
-        spider_poker()
-    
-    def spider_ambassador(self):
-        # check in crawl input is empty
-        spider_stopper()
-        time.sleep(10)
-        if not self.crawl_input.text():
-            # if empty
-            # check if there anything to crawl
-            print("\n\nInput Empty, Check if there anything to crawl")
-            with open("project\\pickle_temp\\spider.pkl", "rb") as f:
-                    crawl_dict = pickle.load(f)
-            if len(crawl_dict) == 0:
-                # if nothing to crawl, Continue Chilling
-                self.crawl_status.addItem(QtWidgets.QListWidgetItem("Nothing to crawl, Enter New URL"))
-                ELT_scrape_main()
-                return
-            else:
-                self.crawl_status.addItem(QtWidgets.QListWidgetItem("Added New URL to Crawl List"))
-                # 1-Continue Spider job
-                ELT_scrape_main()
-                return
-        else:
-            # if not empty
-            # check is there anything to crawl
-            print("\n\nAdd New URL to Crawl")
-            self.crawl_status.addItem(QtWidgets.QListWidgetItem("Added New URL to Crawl List"))
-            with open("project\\pickle_temp\\spider.pkl", "rb") as f:
-                    crawl_dict = pickle.load(f)
-            crawl_dict.append({self.crawl_input.text(): [1,3]})
-            with open("project\\pickle_temp\\spider.pkl", "wb") as f:
-                    pickle.dump(crawl_dict, f)
-            ELT_scrape_main()
-        self.crawl_input.clear()
-        # scroll to bottom
-        self.crawl_status.scrollToBottom()
     
     def insert(self):
         """insert function"""
@@ -411,16 +363,15 @@ class SearchWidget(QWidget):
 def exit_func():
     global spider_quitting
     print("\n\nClosing Program\n\n")
-    spider_quitting = True
-    sys.exit()
-
+    transform_stop()
+    
 if __name__ == "__main__":
-    spider_thread = threading.Thread(target=ELT_scrape_main)
-    spider_thread.start()
+    # spider_thread = threading.Thread(target=ELT_scrape_main)
+    # spider_thread.start()
     app = QApplication(sys.argv)
     search_widget = SearchWidget()
     search_widget.show()
     # spider_thread.join()
-    app.exec_()
     atexit.register(exit_func)
+    app.exec_()
 

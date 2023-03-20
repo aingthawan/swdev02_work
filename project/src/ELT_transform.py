@@ -53,8 +53,7 @@ class raw_database:
             self.conn.commit()
             self.conn.close()
         except:
-            pass
-        
+            pass       
 
 class main_database:
     """class for processing the raw content and insert into the database"""
@@ -156,71 +155,47 @@ class main_database:
     
 
 def data_processing():
-    global transform_status
-    
+    # global transform_quit
     directory = "project\\database\\for_dev\\"
     raw_dir = directory + "database_elt_raw_small.db"
     main_dir = directory + "database_elt_main_small.db"
     rawd = raw_database(raw_dir)
     mdb = main_database(main_dir)
     
-    while True:
+    while not transform_quit:
         try:
-            while True:
-                
-                row_temp = rawd.get_row()
-                
-                if row_temp is None:
-                    print("Table is empty. Waiting for data...")
-                    time.sleep(5)
-                    while transform_pause or transform_status:
-                        print("Paused Transform")
-                        time.sleep(1)
-                        if transform_quit or transform_status:
-                            print("\nQuitting Transform Process")
-                            rawd.close()
-                            mdb.close()
-                            sys.exit()
-                    continue
-
-                else:
-                    print("Processing data...")
-                    start_time = time.time()
-                    url = row_temp[0]
-                    raw = row_temp[1]
-                    mdb.updateLink(url, raw)
-                    rawd.delete_row(url)
-                    print("Data processed. Time taken: %s seconds" % (time.time() - start_time))
-                    
-                    while transform_pause or transform_status:
-                        print("Paused Transform")
-                        time.sleep(1)
-                        if transform_quit or transform_status:
-                            print("Quitting Transform Process")
-                            rawd.close()
-                            mdb.close()
-                            sys.exit()
-                    
-        # if there is any error, remove the top row from raw database then continue
+            row_temp = rawd.get_row()
+            if row_temp is None:
+                print("No data in raw database. Waiting 5 seconds...")
+                time.sleep(5)
+            else:
+                print("Processing data...")
+                start_time = time.time()
+                url = row_temp[0]
+                raw = row_temp[1]
+                mdb.updateLink(url, raw)
+                rawd.delete_row(url)
+                print("Data processed. Time taken: %s seconds" % (time.time() - start_time))
         except Exception as e:
             print(e)
             print("Error occured. Removing data from raw database...")
             rawd.delete_row(url)
             print("Data removed. Continuing...")
-            # data_processing()
-        
-def transform_start():
-    global transform_pause
-    global transform_quit 
-    global transform_status
-    transform_pause = False
-    transform_quit = False
-    transform_status = False
-    data_processing()
+    if transform_quit:    
+        rawd.close()
+        mdb.close()
+        sys.exit()
     
 def transform_stop():
-    global transform_status
-    transform_status = True
+    global transform_quit
+    print("Stopping Transform Process")
+    transform_quit = True
+    
+# if __name__ == "__main__":
+def transform_main():
+    global transform_quit
+    transform_quit = False
+    data_processing()
     
 #  _._     _,-'""`-._
 # (,-.`._,'(       |\`-/|
