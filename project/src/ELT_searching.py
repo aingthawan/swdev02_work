@@ -181,6 +181,7 @@ class invertedIndexSearch:
         return None
 
     def get_place_dict(self, id_list):
+        # print("ID List", tuple(id_list))
         self.curr.execute(f"SELECT Place FROM Web_Data WHERE Web_ID IN {tuple(id_list)}")
         places = self.curr.fetchall()
         final_dict = {}
@@ -210,8 +211,11 @@ class invertedIndexSearch:
                 if id_list != None:
                     # return self.Link_from_ID(id_list)
                     # return the result and cache the result
+                    # Get TF-IDF Rank
+                    id_list = list(self.TFIDFRank(cleaned_query, id_list))
+                    
                     self.search_cacher(",".join(cleaned_query), id_list)
-                    print("Total Place : ", len(self.get_place_dict(id_list)))
+                    # print("Total Place : ", len(self.get_place_dict(id_list)))
                     return (self.Link_from_ID(id_list), self.get_place_dict(id_list))
                 else:
                     return None            
