@@ -111,19 +111,25 @@ class main_database:
         """update the link into the database, without raw content, using method above"""
         # get raw content of the url
         print("Updating URL : ", url)
-        page_content = self.ps.get_raw_html(url)
-        self.updateLink(url, page_content)
+        try:
+            page_content = self.ps.get_raw_html(url)
+            self.updateLink(url, page_content)
+        except:
+            print("Error in updating URL : ", url)
 
     # tested in datapipeline
     def removeData(self, url):
         """remove the data from the database"""
         print("Removing URL : ", url)
         temp_datarow = self.dp.fetch_data_by_url(url)
-        self.dp.removeWebData(temp_datarow['URL'])
-        self.dp.uncountRef(temp_datarow['Ref_To'])
-        self.dp.removeInvertedIndex(temp_datarow['Web_ID'], temp_datarow['All_Word'])
-        # remove cache
-        self.dp.removeTermInCache(temp_datarow['All_Word'])
+        if temp_datarow is not None:
+            self.dp.removeWebData(temp_datarow['URL'])
+            self.dp.uncountRef(temp_datarow['Ref_To'])
+            self.dp.removeInvertedIndex(temp_datarow['Web_ID'], temp_datarow['All_Word'])
+            # remove cache
+            self.dp.removeTermInCache(temp_datarow['All_Word'])
+        else:
+            print("Data with URL : ", url  ," not found in database")
     
     # tested in datapipeline
     def removeDataByWebID(self, web_id):

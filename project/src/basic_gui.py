@@ -1,17 +1,17 @@
+import os
 import sys
 import time
 import json
 import time
-import pickle
 import atexit
 import folium
-import threading
 import webbrowser
 import pandas as pd
 from ELT_scrape import *
+from ELT_transform import *
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import QUrl
-from ELT_transform import *
+from PyQt5.QtGui import QImage
 from ELT_searching import invertedIndexSearch
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QVBoxLayout, QHBoxLayout, QWidget
@@ -67,7 +67,7 @@ class SearchWidget(QWidget):
         self.crawl_status.setFixedHeight(35) # set box size
         self.crawl_status.setFixedWidth(300)
         self.crawl_status.addItem(QtWidgets.QListWidgetItem("Spider Chilling..."))
-        self.crawl_button = QPushButton("Start Crawl")
+        self.crawl_button = QPushButton("Clear Cache")
         self.crawl_button_stop = QPushButton("Bar")
         self.crawl_button_quit = QPushButton("Spatial")
         # Set widget properties
@@ -128,7 +128,7 @@ class SearchWidget(QWidget):
         self.insert_button.clicked.connect(self.insert)
         self.delete_button.clicked.connect(self.remove)
         
-        # self.crawl_button.clicked.connect()
+        self.crawl_button.clicked.connect(self.clear_cache_caller)
         self.crawl_button_stop.clicked.connect(self.bar_plotter)
         self.crawl_button_quit.clicked.connect(self.map_loader)
         
@@ -188,7 +188,14 @@ class SearchWidget(QWidget):
             }
         """
         self.setStyleSheet(style_sheet)
-        
+    
+    def clear_cache_caller(self):
+        iis = invertedIndexSearch(self.database_file)
+        iis.clear_cache()
+        # display log
+        self.log_area.addItem('Cache cleared')
+        self.log_area.scrollToBottom()
+    
     def display_url(self):
         # update
         self.web_view.load(QUrl(self.output_area.currentItem().text()))
@@ -230,11 +237,8 @@ class SearchWidget(QWidget):
         search = invertedIndexSearch(self.database_file)
         search.bar_plotter()
         search.close()
-        # display bar plot
-        with open('project\\database\\graph\\top_freq_word.html', "r") as f:
-            bar_html = f.read()
-        self.webEngineView.setHtml(bar_html)
-        self.webEngineView.update()
+        # display png bar plot on web view
+        self.webEngineView.load(QUrl.fromLocalFile(os.path.abspath('project\\database\\graph\\top_freq_word.png')))
         
     def map_loader(self):
         with open(self.folium_file, "r") as f:
@@ -344,7 +348,7 @@ class SearchWidget(QWidget):
                 # clear the insert line edit
                 self.insert_input.clear()
                 # display log in the log area
-                self.log_area.addItem(QtWidgets.QListWidgetItem("Insert Process completed"))
+                self.log_area.addItem(QtWidgets.QListWidgetItem("Insert Process Ended"))
                 self.log_area.scrollToBottom()
                 return
             except Exception as e:
@@ -378,7 +382,8 @@ class SearchWidget(QWidget):
                 self.log_area.addItem(QtWidgets.QListWidgetItem("Failed to remove"))
                 self.log_area.addItem(QtWidgets.QListWidgetItem(str(e)))
                 self.log_area.scrollToBottom()
-                return        
+                return    
+            
 
 def exit_func():
     global spider_quitting

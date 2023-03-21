@@ -21,6 +21,10 @@ class invertedIndexSearch:
         self.curr = self.conn.cursor()
         self.create_cache_table()
 
+    def close(self):
+        """close the database connection"""
+        self.conn.close()
+        
     def create_cache_table(self):
         """Create a table for caching the search result, Attribute : List of query, List of ID"""
         self.curr.execute("""CREATE TABLE IF NOT EXISTS Search_Cache (
@@ -28,10 +32,6 @@ class invertedIndexSearch:
             ID_List TEXT
         )""")
         # self.conn.commit()
-
-    def close(self):
-        """close the database connection"""
-        self.conn.close()
 
     # tested
     def queryCleaner(self, query):
@@ -127,26 +127,33 @@ class invertedIndexSearch:
         """return the ranked ID list from the TF-IDF score"""
         # time for TF-IDF
         start_time = time.time()
+        
         # get total document count
         self.curr.execute("SELECT COUNT(*) FROM web_Data")
         total_doc = self.curr.fetchone()[0]
+        
         # get document frequency for all words in the word list
         word_idf_dict = {}
         for word in word_list:
             self.curr.execute(f"SELECT Document_Freq FROM Inverted_Index WHERE Word = '{word}'")
             total_doc_contain = self.curr.fetchone()[0]
             word_idf_dict[word] = math.log(total_doc / total_doc_contain)
+            
         # calculate the TF-IDF score for all documents in the ID list
         final_score_dict = {}
+        # print(IDlist)
         for ids in IDlist:
+            # print(ids)
             final_score_dict[ids] = 0
-            total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))
+            total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))                
             for word in word_list:
                 total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
                 final_score_dict[ids] += (total_term / total_words) * word_idf_dict[word]
+                
         # sort the final score dictionary descending
         sorted_final_score_dict = {k: v for k, v in sorted(final_score_dict.items(), key=lambda item: item[1], reverse=True)}
         end_time = time.time()
+        
         print(" New TF-IDF Ranking Time : ", end_time - start_time)
         return sorted_final_score_dict.keys()
     
@@ -193,6 +200,12 @@ class invertedIndexSearch:
                 else:
                     final_dict[key] += value
         return final_dict
+    
+    def clear_cache(self):
+        # clear all rows in the cache table
+        self.curr.execute("DELETE FROM Search_Cache")
+        self.conn.commit()
+        print("Cache Cleared")
         
 
     def full_search(self, user_query):
@@ -237,35 +250,33 @@ class invertedIndexSearch:
         dataframe.sort_values(by=['document_frequency'], ascending=False, inplace=True)
         dataframe = dataframe[dataframe.document_frequency != 0]
 
-        # Set the custom style with black background
-        # plt.style.use('dark_background')
-
         top_n = 30 # Change this to the number of top words you want to display
         top_words_df = dataframe[:top_n]
-        freq_rank_10 = dataframe.iloc[top_n]['document_frequency']
 
-        px = 1/plt.rcParams['figure.dpi']  # pixel in inches
-        fig, ax = plt.subplots(figsize=(900*px, 350*px))
+        # Set the custom style with black background
+        plt.style.use('dark_background')
+
+        # Increase DPI for better quality image
+        plt.rcParams['figure.dpi'] = 300
+
+        fig, ax = plt.subplots(figsize=(20, 6))
 
         # Set the color of the bars to yellow
         bars = ax.bar(top_words_df['word'], top_words_df['document_frequency'], color='orange')
-
-        # Set the y-axis limits to start at a value greater than zero
-        ax.set_ylim(ymin=freq_rank_10-20)
-
-        # Set the color of the x-axis and y-axis labels and the title to white
+        # value of top_n th word
+        top_30 = top_words_df['document_frequency'].iloc[-1]
+        # Set the y-axis limits to start at zero
+        ax.set_ylim(ymin=top_30-10)
+        
         plt.xticks(rotation=45, ha='right')
-        ax.tick_params(axis='x', colors='black')
-        ax.tick_params(axis='y', colors='black')
-        ax.set_xlabel('Word', color='black')
-        ax.set_ylabel('Document Frequency', color='black')
-        ax.set_title(f'Top {top_n} Words by Frequency', color='black')
+        ax.tick_params(axis='x', colors='white')
+        ax.tick_params(axis='y', colors='white')
+        ax.set_xlabel('Word', color='white')
+        ax.set_ylabel('Document Frequency', color='white')
+        ax.set_title(f'Top {top_n} Words by Frequency', color='white')
 
-        # Convert the plot to an HTML format using mpld3
-        html = mpld3.fig_to_html(fig)      
-        # save the html file
-        with open('project\\database\\graph\\top_freq_word.html', 'w') as f:
-            f.write(html)
+        # Save as png
+        plt.savefig('project\\database\\graph\\top_freq_word.png', bbox_inches='tight')
         
 
         
@@ -279,7 +290,7 @@ if __name__ == "__main__":
     database_file = 'project\\database\\for_dev\\' + file_name
     # make a loop for searching until user want to exit
     # using try and except for error handling keyboard interrupt to exit the program
-    iis = invertedIndexSearch(database_file)
+    iis = invertedIndexSearch("project\\database\\database_elt_main.db")
     os.system('cls')
 
     try:
