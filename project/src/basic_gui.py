@@ -21,6 +21,7 @@ class SearchWidget(QWidget):
         super().__init__()
         
         self.database_file = 'project\\database\\database_elt_main.db'
+        # self.database_file = 'project\\database\\backup\\database_elt_main_verB.db'
         self.folium_file = 'project\\database\\for_spatial\\folium_map.html'
         
         with open('project\\database\\for_spatial\\custom.geo.json', encoding='utf-8') as f:

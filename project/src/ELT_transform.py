@@ -168,6 +168,11 @@ def data_processing():
     rawd = raw_database(raw_dir)
     mdb = main_database(main_dir)
     
+    # raw_dir = "project\\database\\for_dev\\database_elt_raw_small.db"
+    # main_dir = "project\\database\\for_dev\\database_elt_main_small.db"
+    # rawd = raw_database(raw_dir)
+    # mdb = main_database(main_dir)
+    
     while not transform_quit:
         try:
             row_temp = rawd.get_row()

@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import mpld3
+import tqdm
 
 class invertedIndexSearch:
     """class for searching the url from database, Inverted Indexing Style"""
@@ -142,7 +143,7 @@ class invertedIndexSearch:
         # calculate the TF-IDF score for all documents in the ID list
         final_score_dict = {}
         # print(IDlist)
-        for ids in IDlist:
+        for ids in tqdm.tqdm(IDlist, desc="Calculating TF-IDF Score"):
             # print(ids)
             final_score_dict[ids] = 0
             total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))                

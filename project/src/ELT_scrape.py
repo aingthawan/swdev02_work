@@ -59,8 +59,8 @@ class get_raw_content:
 def main():
     global tinderURL
     # initialize the class
-    # grc = get_raw_content("project\\database\\database_elt_raw.db", "project\\database\\database_elt_main.db")
-    grc = get_raw_content("project\\database\\for_dev\\database_elt_raw_small.db", "project\\database\\for_dev\\database_elt_main_small.db")
+    grc = get_raw_content("project\\database\\database_elt_raw.db", "project\\database\\database_elt_main.db")
+    # grc = get_raw_content("project\\database\\for_dev\\database_elt_raw_small.db", "project\\database\\for_dev\\database_elt_main_small.db")
     while spider_alive:
         
         while spider_pause or spider_pause_signal:
@@ -103,7 +103,7 @@ def spider_control():
         else:
             print(tinderURL)
             print("add url")
-            tinderURL.append({command : [1,2]})
+            tinderURL.append({command : [1,3]})
             print(tinderURL)
             
 def spider_pauser():
