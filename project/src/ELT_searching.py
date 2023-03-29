@@ -6,21 +6,26 @@ import os
 import math
 import time
 
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+import mpld3
+import tqdm
+
 class invertedIndexSearch:
     """class for searching the url from database, Inverted Indexing Style"""
 
     def __init__(self, database_file):
         """initialize the database"""
         self.tc = TextCleaners()
-        self.conn = sqlite3.connect(database_file)
+        self.conn = sqlite3.connect(database_file, timeout=10)
         self.curr = self.conn.cursor()
         self.create_cache_table()
-        
+
     def close(self):
         """close the database connection"""
         self.conn.close()
-
-    # tested
+        
     def create_cache_table(self):
         """Create a table for caching the search result, Attribute : List of query, List of ID"""
         self.curr.execute("""CREATE TABLE IF NOT EXISTS Search_Cache (
@@ -40,7 +45,6 @@ class invertedIndexSearch:
                 non_repeated_query.append(word)
         return non_repeated_query
 
-    
     def getInvertedIndexDict(self, word_list):
         """return a list of inverted index dictionary from a list of word"""
         list_temp = []
@@ -89,18 +93,6 @@ class invertedIndexSearch:
         # print("Total ", len(temp), " results found")
         return temp
     
-    # def TFScore(self, word, IDlist):
-    #     """return the TF score for each id in the id list to a term"""
-    #     score_temp = {}
-    #     # start_time = time.time()
-    #     for ids in IDlist:
-    #         # total word in the document
-    #         total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))
-    #         total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
-    #         score_temp[ids] = total_term / total_words
-    #     end_time = time.time()
-    #     # print("TF Score Time : ", end_time - start_time)
-    #     return score_temp
     def TFScore(self, word, IDlist):
         """return the TF score for each id in the id list to a term"""
         score_temp = {}
@@ -117,23 +109,6 @@ class invertedIndexSearch:
             score_temp[ids] = inverted_dict[ids][ids] / total_words_dict[ids]
         return score_temp
 
-        
-
-    # def IDFScore(self, word_list):
-    #     """return the IDF score dictionary of each word in the word list"""
-    #     # start_time = time.time()
-    #     score_temp = {}
-    #     for word in word_list:
-    #         # get total document
-    #         self.curr.execute("SELECT COUNT(*) FROM web_Data")
-    #         total_doc = self.curr.fetchone()[0]
-    #         # get total document contain the word
-    #         self.curr.execute(f"SELECT Document_Freq FROM Inverted_Index WHERE Word = '{word}'")
-    #         total_doc_contain = self.curr.fetchone()[0]
-    #         score_temp[word] = math.log(total_doc / total_doc_contain)
-    #     # end_time = time.time()
-    #     # print("IDF Score Time : ", end_time - start_time)
-    #     return score_temp
     def IDFScore(self, word_list):
         score_temp = {}
         self.curr.execute("SELECT COUNT(*) FROM web_Data")
@@ -153,26 +128,33 @@ class invertedIndexSearch:
         """return the ranked ID list from the TF-IDF score"""
         # time for TF-IDF
         start_time = time.time()
+        
         # get total document count
         self.curr.execute("SELECT COUNT(*) FROM web_Data")
         total_doc = self.curr.fetchone()[0]
+        
         # get document frequency for all words in the word list
         word_idf_dict = {}
         for word in word_list:
             self.curr.execute(f"SELECT Document_Freq FROM Inverted_Index WHERE Word = '{word}'")
             total_doc_contain = self.curr.fetchone()[0]
             word_idf_dict[word] = math.log(total_doc / total_doc_contain)
+            
         # calculate the TF-IDF score for all documents in the ID list
         final_score_dict = {}
-        for ids in IDlist:
+        # print(IDlist)
+        for ids in tqdm.tqdm(IDlist, desc="Calculating TF-IDF Score"):
+            # print(ids)
             final_score_dict[ids] = 0
-            total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))
+            total_words = len((self.curr.execute(f"SELECT All_Word FROM web_Data WHERE Web_ID = {ids}").fetchone()[0]).split(" , "))                
             for word in word_list:
                 total_term = eval(self.curr.execute(f"SELECT Inverted_Dict FROM Inverted_Index WHERE Word = '{word}'").fetchone()[0])[ids]
                 final_score_dict[ids] += (total_term / total_words) * word_idf_dict[word]
+                
         # sort the final score dictionary descending
         sorted_final_score_dict = {k: v for k, v in sorted(final_score_dict.items(), key=lambda item: item[1], reverse=True)}
         end_time = time.time()
+        
         print(" New TF-IDF Ranking Time : ", end_time - start_time)
         return sorted_final_score_dict.keys()
     
@@ -196,22 +178,6 @@ class invertedIndexSearch:
         self.curr.execute(f"INSERT INTO Search_Cache (Query_List, ID_List) VALUES ('{user_query}', '{id_list}')")
         self.conn.commit()
         
-    # method to check if the query is in the cache
-    # def search_cache_checker(self, cleaned_query):
-    #     # check if the query is in the Query_List column
-    #     # if yes return the ID_List
-    #     self.curr.execute("SELECT Query_List FROM Search_Cache")
-    #     search_cache = self.curr.fetchall()
-    #     for item in search_cache:
-    #         if self.compare_query(cleaned_query, item[0].split(",")):
-    #             # if the query is in the cache, return the result
-    #             self.curr.execute("SELECT ID_List FROM Search_Cache WHERE Query_List = ?", (item[0],))
-    #             return eval(self.curr.fetchone()[0])
-    #         # else return None
-    #         else:
-    #             continue
-    #     # out of the loop, return None
-    #     return None
     def search_cache_checker(self, cleaned_query):
         # check if the query is in the Query_List column
         # if yes return the ID_List
@@ -222,12 +188,33 @@ class invertedIndexSearch:
         # out of the loop, return None
         return None
 
-
+    def get_place_dict(self, id_list):
+        # print("ID List", tuple(id_list))
+        self.curr.execute(f"SELECT Place FROM Web_Data WHERE Web_ID IN {tuple(id_list)}")
+        places = self.curr.fetchall()
+        final_dict = {}
+        for i in places:
+            temp_dict = eval(i[0])
+            for key, value in temp_dict.items():
+                if key not in final_dict:
+                    final_dict[key] = value
+                else:
+                    final_dict[key] += value
+        return final_dict
+    
+    def clear_cache(self):
+        # clear all rows in the cache table
+        self.curr.execute("DELETE FROM Search_Cache")
+        self.conn.commit()
+        print("Cache Cleared")
+        
 
     def full_search(self, user_query):
-        """return a list of url from a user query"""
+        """return a list of url from a user query
+        return None if no result found
+        return [[list of ranked url] , {dict of place and count}]
+        """
         cleaned_query = self.queryCleaner(user_query)
-        print("Cleaned Search Query", cleaned_query)
         if cleaned_query != None:
             # check if the query is in the cache
             load_from_cache = self.search_cache_checker(cleaned_query)
@@ -238,17 +225,59 @@ class invertedIndexSearch:
                 if id_list != None:
                     # return self.Link_from_ID(id_list)
                     # return the result and cache the result
+                    # Get TF-IDF Rank
+                    id_list = list(self.TFIDFRank(cleaned_query, id_list))
+                    
                     self.search_cacher(",".join(cleaned_query), id_list)
-                    return self.Link_from_ID(id_list)
+                    # print("Total Place : ", len(self.get_place_dict(id_list)))
+                    return (self.Link_from_ID(id_list), self.get_place_dict(id_list))
                 else:
                     return None            
             else:
                 print("From Cache")
                 # ================================================
-                return self.Link_from_ID(load_from_cache) 
+                # print(self.get_place_dict(load_from_cache))
+                return (self.Link_from_ID(load_from_cache), self.get_place_dict(load_from_cache))
                 # print(load_from_cache)
         else:
             return None
+        
+    def bar_plotter(self):
+        """Method for plotting the bar chart"""
+        self.curr.execute("SELECT * FROM Inverted_Index")
+        word_data = self.curr.fetchall()
+        dataframe = pd.DataFrame(word_data)
+        dataframe.rename(columns={0: 'word', 1: 'document_frequency'}, inplace=True)
+        dataframe.sort_values(by=['document_frequency'], ascending=False, inplace=True)
+        dataframe = dataframe[dataframe.document_frequency != 0]
+
+        top_n = 30 # Change this to the number of top words you want to display
+        top_words_df = dataframe[:top_n]
+
+        # Set the custom style with black background
+        plt.style.use('dark_background')
+
+        # Increase DPI for better quality image
+        plt.rcParams['figure.dpi'] = 300
+
+        fig, ax = plt.subplots(figsize=(20, 6))
+
+        # Set the color of the bars to yellow
+        bars = ax.bar(top_words_df['word'], top_words_df['document_frequency'], color='orange')
+        # value of top_n th word
+        top_30 = top_words_df['document_frequency'].iloc[-1]
+        # Set the y-axis limits to start at zero
+        ax.set_ylim(ymin=top_30-10)
+        
+        plt.xticks(rotation=45, ha='right')
+        ax.tick_params(axis='x', colors='white')
+        ax.tick_params(axis='y', colors='white')
+        ax.set_xlabel('Word', color='white')
+        ax.set_ylabel('Document Frequency', color='white')
+        ax.set_title(f'Top {top_n} Words by Frequency', color='white')
+
+        # Save as png
+        plt.savefig('project\\database\\graph\\top_freq_word.png', bbox_inches='tight')
         
 
         
@@ -258,11 +287,11 @@ if __name__ == "__main__":
 
     os.system('cls')
     print("\nWelcome to the Search Engine\nSetting up . . .\n\n")
-    file_name = 'database_elt_main.db'
-    database_file = 'project\\database\\' + file_name
+    file_name = 'database_elt_main_small.db'
+    database_file = 'project\\database\\for_dev\\' + file_name
     # make a loop for searching until user want to exit
     # using try and except for error handling keyboard interrupt to exit the program
-    iis = invertedIndexSearch(database_file)
+    iis = invertedIndexSearch("project\\database\\database_elt_main.db")
     os.system('cls')
 
     try:
@@ -270,10 +299,10 @@ if __name__ == "__main__":
             user_query = input("\n\nEnter your search query : ")
             os.system('cls')
             result_list = iis.full_search(user_query)
-            if result_list == None:
+            if result_list[0] == None:
                 print("No result found")
             else:
-                for result in result_list[:9]:
+                for result in result_list[0][:9]:
                     print(result[0])
         
 

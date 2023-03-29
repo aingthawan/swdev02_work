@@ -1,13 +1,13 @@
 # Okay
 
 import unittest
-import sqlite3
+import os
 from ELT_transform import main_database
 
 class TestMainDatabase(unittest.TestCase):
 
     def setUp(self):
-        # self.conn = sqlite3.connect('project/database/for_test/test.db')
+        os.remove('project/database/for_test/test.db')
         self.db = main_database('project/database/for_test/test.db')
         self.url = 'https://www.example.com'
 
@@ -24,6 +24,6 @@ class TestMainDatabase(unittest.TestCase):
 
     def tearDown(self):
         self.db.close()
-
+        
 if __name__ == '__main__':
     unittest.main()

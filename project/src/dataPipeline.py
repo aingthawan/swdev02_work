@@ -10,15 +10,16 @@
 # updateInvertedIndexing: update the inverted index table with the word count for each word in the website data.
 
 import sqlite3
-import ast
+import pycountry
 
 class dataPipelines:
     """Class of function for Update / Remove data"""
     
     def __init__(self, database_file):
         """Input database file"""
-        self.conn = sqlite3.connect(database_file)
+        self.conn = sqlite3.connect(database_file, timeout=10)
         self.cursor = self.conn.cursor()
+        self.countries = [country.name.lower() for country in pycountry.countries]
         self.createTable()
     
     # tested
@@ -26,7 +27,7 @@ class dataPipelines:
         # Create table for keeping domain name of url and times of referenced to
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Reference_Domain(Domain_Name, Ref_Count)")
         # Create a table for unique id for each url and list of all words in that url and list of url found on that page
-        self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To)")
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS web_Data(Web_ID, URL, All_Word, Ref_To, Place)")
         # Create table for each word, number of document that contain that word and dictionary of sorted key that are id of url and number of that word found on that link
         self.cursor.execute("CREATE TABLE IF NOT EXISTS Inverted_Index(Word, Document_Freq, Inverted_Dict)")
         # create table for keeping list of query and list of id that match with that query
@@ -128,10 +129,18 @@ class dataPipelines:
     def updateWebData(self, web_id, url, all_words, ref_to):
         """Insert new url data into web_Data"""
         words = list(all_words.keys())
-        all_words = " , ".join(words) 
+        all_words_join = " , ".join(words) 
         ref_to = " , ".join(ref_to)
         
-        self.cursor.execute(f"INSERT INTO web_Data (Web_ID, URL, All_Word, Ref_To) VALUES (?, ?, ?, ?)", (web_id, url, all_words, ref_to))
+        dict_temp = {}
+        for i in all_words:
+            if i in self.countries:
+                if i in dict_temp.keys():
+                    dict_temp[i] += 1
+                else:
+                    dict_temp[i] = 1
+        
+        self.cursor.execute(f"INSERT INTO web_Data (Web_ID, URL, All_Word, Ref_To, Place) VALUES (?, ?, ?, ?, ?)", (web_id, url, all_words_join, ref_to, str(dict_temp)))
         self.conn.commit()
         
     

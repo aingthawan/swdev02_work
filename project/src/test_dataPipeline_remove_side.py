@@ -45,6 +45,20 @@ class TestDataPipeline(unittest.TestCase):
         self.data_pipeline.cursor.execute("SELECT * FROM web_Data WHERE URL=?", (test_url,))
         result = self.data_pipeline.cursor.fetchone()
         self.assertIsNone(result)
+    
+    # def test_removeInvertedIndex(self):
+    #     # Create test data
+    #     test_word = 'testword'
+    #     test_id = 1
+    #     expexted_inverted_dict = {2:2, 3:1}
+    #     # Call the method being tested
+    #     self.data_pipeline.removeInvertedIndex(test_id, test_word)
+    #     # get inverted dict from database
+    #     self.data_pipeline.cursor.execute("SELECT Inverted_Dict FROM Inverted_Index WHERE Word=?", (test_word,))
+    #     result = eval(self.data_pipeline.cursor.fetchone())
+    #     print(result)
+    #     self.assertEqual(result, expexted_inverted_dict)
+        
         
 if __name__ == '__main__':
     unittest.main()

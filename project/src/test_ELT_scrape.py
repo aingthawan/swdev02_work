@@ -40,6 +40,14 @@ class TestGetRawContent(unittest.TestCase):
         #  check by calling the checkRaw method
         self.assertTrue(self.grc.rk.checkRaw(url))
         
+    # def test_temp_tinder_check(self):
+    #     global tinderURL
+    #     tinderURL = [{"https://example1.com" : [0,3]}, {"https://example2.com" : [1,3]},]
+    #     result = self.grc.temp_tinder_check("https://example1.com")
+    #     self.assertTrue(result)
+    #     result = self.grc.temp_tinder_check("https://example3.com")
+    #     self.assertFalse(result)
+        
     def tearDown(self):
         self.grc.close()
         # delete test database
