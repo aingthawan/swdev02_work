@@ -7,7 +7,7 @@ Repo for keeping work of Software Developemt II
 > ## Member : Me Myself & I
 > Aingthawan Khruakhlai
 
-> ## Project theme : Web Scraping and Search Engine
+> ## Late Project theme : Web Scraping and Search Engine
 > ### Main Topics
 > * Web Scraping
 > * Web Crawling
